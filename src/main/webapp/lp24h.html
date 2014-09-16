@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html ng-app="cuwyApp" ng-controller="lp24hCtrl">
+<head>
+	<meta charset="utf-8" />
+	<link href="/css/bootstrap.css" rel="stylesheet"/>
+</head>
+<body>
+	<h1>Листи призначень реанімація хмельницька обласна лікарня</h1>
+	<div>
+		test
+	</div>
+	<table>
+		<thead>
+			<tr>
+				<th>N</th>
+				<th>
+				Призначеня
+				</th>
+				<th data-ng-repeat="dayHour in dayHours">
+					|
+					{{$index>9?'':'0'}}{{dayHour}}
+				</th>
+			</tr>
+		</thead>
+		<tbody data-ng-repeat="taskInDay in tasksInDay">
+			<tr>
+				<td>{{$index + 1 }}</td>
+				<td ng-click="taskInDay.isCollapsed = !taskInDay.isCollapsed"
+				title="{{taskInDay.isCollapsed}}"
+				>
+				task
+				</td>
+				<td data-ng-repeat="dayHour in dayHours">
+				.
+				</td>
+			</tr>
+			<tr data-ng-if="taskInDay.isCollapsed">
+				<td />
+				<td class="well" colspan="18">
+				hello
+				{{taskInDay}}
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script type="text/javascript">
+	var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
+	cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
+		console.log("lp24hCtrl");
+		var dayHours = [];
+		for(var i=0;i<24;i++) dayHours.push(i);
+		$scope.dayHours = dayHours;
+		var tasksInDay = [];
+		for(var ii=0;ii<12;ii++){
+			tasksInDay.push({i:ii,isCollapsed:false});
+		}
+		$scope.tasksInDay = tasksInDay;
+	} ] );
+	</script>
+</body>
+</html>
