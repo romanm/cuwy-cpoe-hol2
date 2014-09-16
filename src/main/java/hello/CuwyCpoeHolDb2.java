@@ -25,9 +25,16 @@ public class CuwyCpoeHolDb2 {
 		testDb1();
 	}
 	
+	public List<Map<String, Object>> drug1sList() {
+		String sql = "select * from drug1";
+		System.out.println("\n"+sql);
+		List<Map<String, Object>> drug1sList = jdbcTemplate.queryForList(sql);
+		return drug1sList;
+	}
+	
 	public void testDb1() {
-		//create table testtable4 (id int PRIMARY KEY auto_increment, name varchar(50) NOT NULL UNIQUE);
-		String sql = "select * from testtable4";
+		//create table drug1 (drug_id int PRIMARY KEY auto_increment, drug_name varchar(50) NOT NULL UNIQUE);
+		String sql = "select * from drug1";
 		System.out.println("\n"+sql);
 		List<Map<String, Object>> testDbSelect1
 			= jdbcTemplate.queryForList(sql);
