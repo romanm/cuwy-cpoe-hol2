@@ -29,11 +29,16 @@
 				<thead><tr><th>Nr</th><th>Медикамент</th></tr></thead>
 				<tbody data-ng-repeat="drug in drug1sList | filter: seekDrug">
 					<tr>
-					<td>
-				{{drug.DRUG_ID}}
+					<td>{{drug.DRUG_ID}}</td>
+					<td ng-context-menu="menuDrugList" ng-show="!drug.drugUpdateOpen">
+						{{drug.DRUG_NAME}}
 					</td>
-					<td ng-context-menu="menuDrugList">
-				{{drug.DRUG_NAME}}
+					<td ng-context-menu="menuDrugList" ng-show="drug.drugUpdateOpen">
+						<input ng-model="drug.DRUG_NAME" type="text" class="form-control" />
+			<button type="button" ng-click="updateDrug(drug)" class="btn btn-default">
+				<span class="glyphicon glyphicon-floppy-disk"></span>
+				Зберегти
+			</button>
 					</td>
 					</tr>
 				</tbody>
@@ -56,12 +61,23 @@
 	cuwyApp.controller('drugsCtrl', [ '$scope', '$http', function ($scope, $http) {
 		console.log("drugsCtrl");
 		$scope.drug1sList = drug1sList;
+
 		$scope.saveNewDrug = function(){
 			console.log("saveNewDrug");
+			postDrug('/saveNewDrug', {"DRUG_NAME":$scope.seekDrug});
+		}
+
+		$scope.updateDrug = function(drugToUpdate){
+			console.log("updateDrug");
+			postDrug('/updateDrug', drugToUpdate );
+			drugToUpdate.drugUpdateOpen = false;
+		}
+
+		postDrug = function (postUrl, editDrug){
 			$http({
 				method : 'POST',
-				data : {"DRUG_NAME":$scope.seekDrug},
-				url : '/saveNewDrug'
+				data : editDrug,
+				url : postUrl
 			}).success(function(data, status, headers, config){
 				$scope.drug1sList = data;
 				console.log(data);
@@ -69,16 +85,19 @@
 				$scope.error = data;
 			});
 		}
-		
+
 		$scope.menuDrugList = [
 		['<span class="glyphicon glyphicon-floppy-open"></span> Відкрити медикамент документ', function ($itemScope) {
 			console.debug('Edit');
 			console.log($itemScope);
+			$itemScope.drug.drugUpdateOpen = !$itemScope.drug.drugUpdateOpen;
 		}],
 		null,
 		['<span class="glyphicon glyphicon-floppy-remove"></span> Видалити з БД', function ($itemScope) {
 			console.debug('delete');
 			console.debug($itemScope);
+			console.debug($itemScope.drug);
+			postDrug('/removeDrug', $itemScope.drug);
 		}]
 		];
 

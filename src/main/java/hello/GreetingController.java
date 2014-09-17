@@ -23,9 +23,27 @@ public class GreetingController {
 	@Autowired
 	private CuwyCpoeHolDb2 cuwyCpoeHolDb2;
 
+	@RequestMapping(value = "/updateDrug", method = RequestMethod.POST)
+	public @ResponseBody List<Map<String, Object>> updateDrug(@RequestBody Map<String, Object> drugToUpdate) {
+		System.out.println("/removeDrug");
+		System.out.println(drugToUpdate);
+		int updateDrug = cuwyCpoeHolDb2.updateDrug(drugToUpdate);
+		List<Map<String, Object>> drug1sList = drug1sList();
+		return drug1sList;
+	}
+
+	@RequestMapping(value = "/removeDrug", method = RequestMethod.POST)
+	public @ResponseBody List<Map<String, Object>> removeDrug(@RequestBody Map<String, Object> drugToRemove) {
+		System.out.println("/removeDrug");
+		System.out.println(drugToRemove);
+		int removeDrugId = cuwyCpoeHolDb2.removeDrug(drugToRemove);
+		System.out.println(removeDrugId);
+		List<Map<String, Object>> drug1sList = drug1sList();
+		return drug1sList;
+	}
 
 	@RequestMapping(value = "/saveNewDrug", method = RequestMethod.POST)
-	public @ResponseBody List<Map<String, Object>> savePatientHistory(@RequestBody Map<String, Object> newDrug) {
+	public @ResponseBody List<Map<String, Object>> saveNewDrug(@RequestBody Map<String, Object> newDrug) {
 		System.out.println("/saveNewDrug");
 		System.out.println(newDrug);
 		newDrug = cuwyCpoeHolDb2.newDrug(newDrug);
@@ -41,6 +59,7 @@ public class GreetingController {
 		writeToJsDbFile("var drug1sList = ", drug1sList, drug1sListJsFileName);
 		return drug1sList;
 	}
+
 	private String drug1sListJsFileName = "drug1sList.json.js";
 	String applicationFolderPfad = "/home/roman/Documents/01_curepathway/work3/cuwy-cpoe-hol2/";
 	String innerDbFolderPfad = "src/main/webapp/db/";
@@ -58,6 +77,7 @@ public class GreetingController {
 
 	private final AtomicLong counter = new AtomicLong();
 	private static final String template = "Hello, %s!";
+
 	@RequestMapping("/greeting")
 	public Greeting greeting(
 			@RequestParam(value="name", required=false, defaultValue="World") 
@@ -65,4 +85,5 @@ public class GreetingController {
 		return new Greeting(counter.incrementAndGet(),
 				String.format(template, name));
 	}
+
 }

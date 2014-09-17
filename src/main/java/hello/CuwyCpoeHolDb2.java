@@ -41,6 +41,19 @@ public class CuwyCpoeHolDb2 {
 		System.out.println(testDbSelect1);
 	}
 
+	public int updateDrug(Map<String, Object> drugToUpdate) {
+		String drugName = (String) drugToUpdate.get("DRUG_NAME");
+		Integer drugId = (Integer) drugToUpdate.get("DRUG_ID");
+		int update = this.jdbcTemplate.update("update drug1 set drug_name = ? where drug_id = ?",
+			drugName, drugId);
+		return update;
+	}
+
+	public int removeDrug(Map<String, Object> removeDrug) {
+		Integer drugId = (Integer) removeDrug.get("DRUG_ID");
+		int update = jdbcTemplate.update("delete from drug1 where drug_id = ?",drugId);
+		return update;
+	}
 	public Map<String, Object> newDrug(Map<String, Object> newDrug) {
 		Object drugName = newDrug.get("DRUG_NAME");
 		jdbcTemplate.update("INSERT INTO drug1 (drug_name) VALUES (?)",drugName);
