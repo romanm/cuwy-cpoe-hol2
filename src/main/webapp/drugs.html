@@ -26,20 +26,13 @@
 	<div class="row">
 		<div class="col-xs-8">
 			<table width="100%">
-				<thead>
-					<tr>
-						<th>Nr
-						</th>
-						<th>Медикамент
-						</th>
-					</tr>
-				</thead>
+				<thead><tr><th>Nr</th><th>Медикамент</th></tr></thead>
 				<tbody data-ng-repeat="drug in drug1sList | filter: seekDrug">
 					<tr>
 					<td>
 				{{drug.DRUG_ID}}
 					</td>
-					<td>
+					<td ng-context-menu="menuDrugList">
 				{{drug.DRUG_NAME}}
 					</td>
 					</tr>
@@ -49,14 +42,17 @@
 	</div>
 </div>
 
-	
 	<script src="/js/jquery-2.1.1.min.js"></script>
 	<script src="/js/bootstrap.min.js"></script>
 	<script src="/js/angular.min.js"></script>
+	<script src="/js/angular-sanitize.min.js"></script>
 	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script src='/js/textAngular-sanitize.min.js'></script>
+	<script src='/js/textAngular.min.js'></script>
+	<script src="/js/cuwy1.directives.js"></script>
 	<script src="/db/drug1sList.json.js"></script>
 	<script type="text/javascript">
-	var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
+	//var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
 	cuwyApp.controller('drugsCtrl', [ '$scope', '$http', function ($scope, $http) {
 		console.log("drugsCtrl");
 		$scope.drug1sList = drug1sList;
@@ -73,6 +69,19 @@
 				$scope.error = data;
 			});
 		}
+		
+		$scope.menuDrugList = [
+		['<span class="glyphicon glyphicon-floppy-open"></span> Відкрити медикамент документ', function ($itemScope) {
+			console.debug('Edit');
+			console.log($itemScope);
+		}],
+		null,
+		['<span class="glyphicon glyphicon-floppy-remove"></span> Видалити з БД', function ($itemScope) {
+			console.debug('delete');
+			console.debug($itemScope);
+		}]
+		];
+
 	} ] );
 	</script>
 </body>
