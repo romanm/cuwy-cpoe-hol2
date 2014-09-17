@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,19 +23,20 @@ public class GreetingController {
 	@Autowired
 	private CuwyCpoeHolDb2 cuwyCpoeHolDb2;
 
-	private static final String template = "Hello, %s!";
-	private final AtomicLong counter = new AtomicLong();
 
-
-	@RequestMapping("/greeting")
-	public Greeting greeting(
-			@RequestParam(value="name", required=false, defaultValue="World") 
-			String name) {
-		return new Greeting(counter.incrementAndGet(),
-				String.format(template, name));
+	@RequestMapping(value = "/saveNewDrug", method = RequestMethod.POST)
+	public @ResponseBody List<Map<String, Object>> savePatientHistory(@RequestBody Map<String, Object> newDrug) {
+		System.out.println("/saveNewDrug");
+		System.out.println(newDrug);
+		newDrug = cuwyCpoeHolDb2.newDrug(newDrug);
+		System.out.println(newDrug);
+		List<Map<String, Object>> drug1sList = drug1sList();
+		return drug1sList;
 	}
+
 	@RequestMapping(value = "/drug1sList", method = RequestMethod.GET)
 	public @ResponseBody List<Map<String, Object>> drug1sList() {
+		System.out.println("/drug1sList");
 		List<Map<String, Object>> drug1sList = cuwyCpoeHolDb2.drug1sList();
 		writeToJsDbFile("var drug1sList = ", drug1sList, drug1sListJsFileName);
 		return drug1sList;
@@ -52,5 +54,15 @@ public class GreetingController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private final AtomicLong counter = new AtomicLong();
+	private static final String template = "Hello, %s!";
+	@RequestMapping("/greeting")
+	public Greeting greeting(
+			@RequestParam(value="name", required=false, defaultValue="World") 
+			String name) {
+		return new Greeting(counter.incrementAndGet(),
+				String.format(template, name));
 	}
 }

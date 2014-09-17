@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html ng-app="cuwyApp" ng-controller="drugsCtrl">
+<head>
+	<meta charset="utf-8" />
+	<link href="/css/bootstrap.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<h1>Медикаменти</h1>
+		<div class="col-xs-6">
+			<div class="input-group">
+				<span class="input-group-addon">Пошук:</span>
+				<input ng-model="seekDrug" type="text" class="form-control" 
+				placeholder="Медикамент пошук / запис" auto-focus=""
+				/>
+			</div>
+		</div>
+		<div class="col-xs-3">
+			<button type="button" ng-click="saveNewDrug()" class="btn btn-default">
+				<span class="glyphicon glyphicon-floppy-disk"></span>
+				Зберегти новий медикамент
+			</button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-8">
+			<table width="100%">
+				<thead>
+					<tr>
+						<th>Nr
+						</th>
+						<th>Медикамент
+						</th>
+					</tr>
+				</thead>
+				<tbody data-ng-repeat="drug in drug1sList | filter: seekDrug">
+					<tr>
+					<td>
+				{{drug.DRUG_ID}}
+					</td>
+					<td>
+				{{drug.DRUG_NAME}}
+					</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+	
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script src="/db/drug1sList.json.js"></script>
+	<script type="text/javascript">
+	var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
+	cuwyApp.controller('drugsCtrl', [ '$scope', '$http', function ($scope, $http) {
+		console.log("drugsCtrl");
+		$scope.drug1sList = drug1sList;
+		$scope.saveNewDrug = function(){
+			console.log("saveNewDrug");
+			$http({
+				method : 'POST',
+				data : {"DRUG_NAME":$scope.seekDrug},
+				url : '/saveNewDrug'
+			}).success(function(data, status, headers, config){
+				$scope.drug1sList = data;
+				console.log(data);
+			}).error(function(data, status, headers, config) {
+				$scope.error = data;
+			});
+		}
+	} ] );
+	</script>
+</body>
+</html>
