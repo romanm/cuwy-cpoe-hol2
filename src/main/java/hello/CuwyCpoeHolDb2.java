@@ -22,6 +22,34 @@ public class CuwyCpoeHolDb2 {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		System.out.println("------CuwyCpoeHolDb2-------"+jdbcTemplate);
 	}
+	
+	public int updateProtocolOrder(Map<String, Object> patientToUpdate) {
+		String patientName = (String) patientToUpdate.get("ORDER_NAME");
+		Integer patientId = (Integer) patientToUpdate.get("ORDER_ID");
+		int update = this.jdbcTemplate.update("update order1 set order_name = ?, order_type='protocol' where order_id = ? ",
+				patientName, patientId);
+		return update;
+	}
+	public int removeProtocolOrder(Map<String, Object> removePatient) {
+		Integer patientId = (Integer) removePatient.get("ORDER_ID");
+		int update = jdbcTemplate.update("delete from order1 where order_id = ?",patientId);
+		return update;
+	}
+	public Map<String, Object> newProtocolOrder(Map<String, Object> newProtocolOrder) {
+		Object patientName = newProtocolOrder.get("ORDER_NAME");
+		jdbcTemplate.update("INSERT INTO order1 (order_name, order_type) VALUES (?, 'protocol')",patientName);
+		String sqlSelectPatient1 = "SELECT order_id FROM order1 WHERE order_name = ? AND order_type = 'protocol' ORDER BY order_id DESC LIMIT 1";
+		List<Map<String, Object>> patient1sList = jdbcTemplate.queryForList(sqlSelectPatient1, patientName);
+		Integer newPatientId = (Integer) patient1sList.get(0).get("ORDER_ID");
+		newProtocolOrder.put("ORDER_ID", newPatientId);
+		return newProtocolOrder;
+	}
+	public List<Map<String, Object>> protocol1sList() {
+		String sql = "SELECT order_id,order_name FROM order1 WHERE order_type ='protocol'";
+		System.out.println("\n"+sql);
+		List<Map<String, Object>> patient1sList = jdbcTemplate.queryForList(sql);
+		return patient1sList;
+	}
 
 	public int updatePatient(Map<String, Object> patientToUpdate) {
 		String patientName = (String) patientToUpdate.get("PATIENT_NAME");

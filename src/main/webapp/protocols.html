@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html ng-app="cuwyApp" ng-controller="protocolsCtrl">
+<head>
+	<meta charset="utf-8" />
+	<title>{{siteMap.title}}</title>
+	<link href="/css/bootstrap.css" rel="stylesheet"/>
+	<link href="/css2/cuwy1-cpoe-hol1.css" rel="stylesheet"/>
+</head>
+<body>
+<a href="/home.html"><span class="glyphicon glyphicon-home"></span></a>
+/ <span class="h1">{{siteMap.name}}</span>
+<hr/>
+<div class="container">
+	<div class="row">
+		<div class="col-xs-12">
+		//
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-6">
+			<div class="input-group">
+				<span class="input-group-addon">Пошук:</span>
+				<input ng-model="seekProtocol" type="text" class="form-control" 
+				placeholder="Розділ пошук / запис" auto-focus=""
+				/>
+			</div>
+		</div>
+		<div class="col-xs-3">
+			<button type="button" ng-click="saveNewProtocol()" class="btn btn-default">
+				<span class="glyphicon glyphicon-floppy-disk"></span>
+				Створити новий розділ
+			</button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-8">
+			<table width="100%">
+				<thead><tr><th>Nr</th><th>Розділи протоколів</th></tr></thead>
+				<tbody data-ng-repeat="protocolOrder in protocolOrder1sList | filter: seekProtocol | limitTo : 12">
+					<tr>
+					<td>{{protocolOrder.ORDER_ID}}</td>
+					<td ng-context-menu="menuProtocolList" ng-show="!protocolOrder.updateDialogOpen">
+						{{protocolOrder.ORDER_NAME}}
+					</td>
+					<td ng-context-menu="menuProtocolList" ng-show="protocolOrder.updateDialogOpen">
+						<div class="row">
+							<div class="col-xs-5">
+								<input ng-model="protocolOrder.ORDER_NAME" type="text" class="form-control" />
+							</div>
+							<div class="col-xs-3">
+								<button title="Зберегти" type="button" ng-click="updateProtocol(protocolOrder)" class="btn btn-default">
+									<span class="glyphicon glyphicon-floppy-disk"></span>
+								</button>
+								<span title="Вийти" class="close navbar-right" data-ng-click="protocolOrder.updateDialogOpen = false">
+									<span class="glyphicon glyphicon-share-alt"></span>
+								</span>
+							</div>
+						</div>
+					</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js/angular-sanitize.min.js"></script>
+	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script src='/js/textAngular-sanitize.min.js'></script>
+	<script src='/js/textAngular.min.js'></script>
+	<script src="/js2/cuwy1.config.js"></script>
+	<script src="/js2/cuwy1.directives.js"></script>
+	<script src="/db/protocolOrder1sList.json.js"></script>
+	<script type="text/javascript">
+	//var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
+	cuwyApp.controller('protocolsCtrl', [ '$scope', '$http', function ($scope, $http) {
+		$scope.siteMap = config.siteMap.siteMaps[3];
+
+		console.log("protocolsCtrl");
+		$scope.protocolOrder1sList = protocolOrder1sList;
+
+		$scope.saveNewProtocol = function(){
+			console.log("saveNewProtocol");
+			postProtocol('/saveNewProtocol', {"ORDER_NAME":$scope.seekProtocol});
+		}
+
+		$scope.updateProtocol = function(drugToUpdate){
+			console.log("updateProtocol");
+			postProtocol('/updateProtocol', drugToUpdate );
+			drugToUpdate.updateDialogOpen = false;
+		}
+
+		postProtocol = function (postUrl, editProtocolOrder){
+			$http({
+				method : 'POST',
+				data : editProtocolOrder,
+				url : postUrl
+			}).success(function(data, status, headers, config){
+				$scope.protocolOrder1sList = data;
+				console.log(data);
+			}).error(function(data, status, headers, config) {
+				$scope.error = data;
+			});
+		}
+
+		$scope.menuProtocolList = [
+		['<span class="glyphicon glyphicon-edit"></span> Корекція', function ($itemScope) {
+			console.debug('Edit');
+			console.log($itemScope);
+			$itemScope.protocolOrder.updateDialogOpen = !$itemScope.protocolOrder.updateDialogOpen;
+		}],
+		null,
+		['<span class="glyphicon glyphicon-floppy-remove"></span> Видалити з БД', function ($itemScope) {
+			console.debug('delete');
+			console.debug($itemScope);
+			console.debug($itemScope.drug);
+			postProtocol('/removeProtocolOrder', $itemScope.protocolOrder);
+		}],
+		['<span class="glyphicon glyphicon-floppy-open"></span> Перейти в розділ документ', function ($itemScope) {
+			console.debug('Edit');
+			console.log($itemScope);
+			$itemScope.drug.updateDialogOpen = !$itemScope.drug.updateDialogOpen;
+		}]
+		];
+
+	} ] );
+	</script>
+</body>
+</html>

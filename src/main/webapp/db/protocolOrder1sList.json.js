@@ -1,0 +1,1 @@
+var protocolOrder1sList = [{"ORDER_ID":4,"ORDER_NAME":"Гемоpагічний інсульт"}]

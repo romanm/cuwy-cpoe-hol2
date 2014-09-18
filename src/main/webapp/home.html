@@ -9,16 +9,30 @@
 <body>
 	<h1>{{siteMap.name}}</h1>
 	<hr/>
+	<div class="container">
 	<h2>
 		<a href="{{siteMap.siteMaps[0].url}}">{{siteMap.siteMaps[0].name}}</a>
 	</h2>
 	<hr/>
+	<div class="row">
+	<div class="col-xs-4">
+	<h3>
+		<a href="{{siteMap.siteMaps[3].url}}">{{siteMap.siteMaps[3].name}}</a>
+	</h3>
+	</div>
+	<div class="col-xs-4">
 	<h3>
 		<a href="{{siteMap.siteMaps[1].url}}">{{siteMap.siteMaps[1].name}}</a>
 	</h3>
-	<div>
+	</div>
+	</div>
+	<div class="row">
+	<div class="col-xs-12">
 		<a href="{{siteMap.siteMaps[2].url}}">{{siteMap.siteMaps[2].name}}</a>
 	</div>
+	</div>
+	</div>
+	
 	<script src="/js/jquery-2.1.1.min.js"></script>
 	<script src="/js/bootstrap.min.js"></script>
 	<script src="/js/angular.min.js"></script>

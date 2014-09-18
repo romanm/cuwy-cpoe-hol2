@@ -23,6 +23,40 @@ public class GreetingController {
 	@Autowired
 	private CuwyCpoeHolDb2 cuwyCpoeHolDb2;
 
+	@RequestMapping(value = "/saveNewProtocol", method = RequestMethod.POST)
+	public @ResponseBody List<Map<String, Object>> saveNewProtocol(@RequestBody Map<String, Object> newProtocol) {
+		System.out.println("/saveNewProtocol");
+		System.out.println(newProtocol);
+		newProtocol = cuwyCpoeHolDb2.newProtocolOrder(newProtocol);
+		System.out.println(newProtocol);
+		List<Map<String, Object>> patient1sList = protocol1sList();
+		return patient1sList;
+	}
+	@RequestMapping(value = "/removeProtocolOrder", method = RequestMethod.POST)
+	public @ResponseBody List<Map<String, Object>> removeProtocol(@RequestBody Map<String, Object> protocolOrderToRemove) {
+		System.out.println("/removeProtocolOrder");
+		System.out.println(protocolOrderToRemove);
+		int removeProtocolId = cuwyCpoeHolDb2.removeProtocolOrder(protocolOrderToRemove);
+		System.out.println(removeProtocolId);
+		List<Map<String, Object>> patient1sList = protocol1sList();
+		return patient1sList;
+	}
+	@RequestMapping(value = "/updateProtocol", method = RequestMethod.POST)
+	public @ResponseBody List<Map<String, Object>> updateProtocol(@RequestBody Map<String, Object> protocolToUpdate) {
+		System.out.println("/removeProtocol");
+		System.out.println(protocolToUpdate);
+		int updateProtocol = cuwyCpoeHolDb2.updateProtocolOrder(protocolToUpdate);
+		List<Map<String, Object>> patient1sList = protocol1sList();
+		return patient1sList;
+	}
+	@RequestMapping(value = "/protocol1sList", method = RequestMethod.GET)
+	public @ResponseBody List<Map<String, Object>> protocol1sList() {
+		System.out.println("/protocol1sList");
+		List<Map<String, Object>> patient1sList = cuwyCpoeHolDb2.protocol1sList();
+		writeToJsDbFile("var protocolOrder1sList = ", patient1sList, protocolOrder1sListJsFileName);
+		return patient1sList;
+	}
+
 	@RequestMapping(value = "/saveNewPatient", method = RequestMethod.POST)
 	public @ResponseBody List<Map<String, Object>> saveNewPatient(@RequestBody Map<String, Object> newPatient) {
 		System.out.println("/saveNewPatient");
@@ -33,25 +67,25 @@ public class GreetingController {
 		return patient1sList;
 	}
 	@RequestMapping(value = "/removePatient", method = RequestMethod.POST)
-	public @ResponseBody List<Map<String, Object>> removePatient(@RequestBody Map<String, Object> drugToRemove) {
+	public @ResponseBody List<Map<String, Object>> removePatient(@RequestBody Map<String, Object> patientToRemove) {
 		System.out.println("/removePatient");
-		System.out.println(drugToRemove);
-		int removePatientId = cuwyCpoeHolDb2.removePatient(drugToRemove);
+		System.out.println(patientToRemove);
+		int removePatientId = cuwyCpoeHolDb2.removePatient(patientToRemove);
 		System.out.println(removePatientId);
 		List<Map<String, Object>> patient1sList = patient1sList();
 		return patient1sList;
 	}
 	@RequestMapping(value = "/updatePatient", method = RequestMethod.POST)
-	public @ResponseBody List<Map<String, Object>> updatePatient(@RequestBody Map<String, Object> drugToUpdate) {
+	public @ResponseBody List<Map<String, Object>> updatePatient(@RequestBody Map<String, Object> patientToUpdate) {
 		System.out.println("/removePatient");
-		System.out.println(drugToUpdate);
-		int updatePatient = cuwyCpoeHolDb2.updatePatient(drugToUpdate);
+		System.out.println(patientToUpdate);
+		int updatePatient = cuwyCpoeHolDb2.updatePatient(patientToUpdate);
 		List<Map<String, Object>> patient1sList = patient1sList();
 		return patient1sList;
 	}
 	@RequestMapping(value = "/patient1sList", method = RequestMethod.GET)
 	public @ResponseBody List<Map<String, Object>> patient1sList() {
-		System.out.println("/drug1sList");
+		System.out.println("/patient1sList");
 		List<Map<String, Object>> patient1sList = cuwyCpoeHolDb2.patient1sList();
 		writeToJsDbFile("var patient1sList = ", patient1sList, patient1sListJsFileName);
 		return patient1sList;
@@ -91,6 +125,7 @@ public class GreetingController {
 		return drug1sList;
 	}
 
+	private String protocolOrder1sListJsFileName = "protocolOrder1sList.json.js";
 	private String patient1sListJsFileName = "patient1sList.json.js";
 	private String drug1sListJsFileName = "drug1sList.json.js";
 	String applicationFolderPfad = "/home/roman/Documents/01_curepathway/work3/cuwy-cpoe-hol2/";
