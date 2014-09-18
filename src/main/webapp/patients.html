@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html ng-app="cuwyApp" ng-controller="patientsCtrl">
+<head>
+	<meta charset="utf-8" />
+	<link href="/css/bootstrap.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<h1>Пацієнти</h1>
+		<div class="col-xs-6">
+			<div class="input-group">
+				<span class="input-group-addon">Пошук:</span>
+				<input ng-model="seekPatient" type="text" class="form-control" 
+				placeholder="Пацієнт пошук / запис" auto-focus=""
+				/>
+			</div>
+		</div>
+		<div class="col-xs-3">
+			<button type="button" ng-click="saveNewPatient()" class="btn btn-default">
+				<span class="glyphicon glyphicon-floppy-disk"></span>
+				Зберегти нового пацієнта
+			</button>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-8">
+			<table width="100%">
+				<thead><tr>
+				<th>№ іх</th>
+				<!-- 
+				<th>Nr</th>
+				<th>Пацієнт</th>
+				 -->
+				<th>ПІБ, Поступив, Діагноз </th>
+				</tr></thead>
+				<tbody data-ng-repeat="patient in patient1sList | filter: seekPatient | limitTo : 12">
+					<tr>
+					<td>{{patient.PATIENT_ID}}</td>
+					<td ng-context-menu="menuPatientList" ng-show="!patient.patientUpdateOpen">
+						{{patient.PATIENT_NAME}}
+					</td>
+					<td ng-context-menu="menuPatientList" ng-show="patient.patientUpdateOpen">
+						<div class="row">
+							<div class="col-xs-5">
+								<input ng-model="patient.PATIENT_NAME" type="text" class="form-control" />
+							</div>
+							<div class="col-xs-3">
+								<button title="Зберегти" type="button" ng-click="updatePatient(patient)" class="btn btn-default">
+									<span class="glyphicon glyphicon-floppy-disk"></span>
+								</button>
+								<span title="Вийти" class="close navbar-right" data-ng-click="patient.patientUpdateOpen = false">
+									<span class="glyphicon glyphicon-share-alt"></span>
+									<!-- 
+									<span class="glyphicon glyphicon-remove-sign"></span>
+									<span class="glyphicon glyphicon-remove-circle"></span>
+									 -->
+								</span>
+							</div>
+						</div>
+					</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js/angular-sanitize.min.js"></script>
+	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script src='/js/textAngular-sanitize.min.js'></script>
+	<script src='/js/textAngular.min.js'></script>
+	<script src="/js/cuwy1.directives.js"></script>
+	<script src="/db/patient1sList.json.js"></script>
+	<script type="text/javascript">
+	//var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
+	cuwyApp.controller('patientsCtrl', [ '$scope', '$http', function ($scope, $http) {
+		console.log("patientsCtrl");
+		$scope.patient1sList = patient1sList;
+
+		$scope.saveNewPatient = function(){
+			console.log("saveNewPatient");
+			postPatient('/saveNewPatient', {"PATIENT_NAME":$scope.seekPatient});
+		}
+
+		$scope.updatePatient = function(patientToUpdate){
+			console.log("updatePatient");
+			postPatient('/updatePatient', patientToUpdate );
+			patientToUpdate.patientUpdateOpen = false;
+		}
+
+		postPatient = function (postUrl, editPatient){
+			$http({
+				method : 'POST',
+				data : editPatient,
+				url : postUrl
+			}).success(function(data, status, headers, config){
+				$scope.patient1sList = data;
+				console.log(data);
+			}).error(function(data, status, headers, config) {
+				$scope.error = data;
+			});
+		}
+
+		$scope.menuPatientList = [
+		['<span class="glyphicon glyphicon-edit"></span> Корекція', function ($itemScope) {
+			console.debug('Edit');
+			console.log($itemScope);
+			$itemScope.patient.patientUpdateOpen = !$itemScope.patient.patientUpdateOpen;
+		}],
+		null,
+		['<span class="glyphicon glyphicon-floppy-remove"></span> Видалити з БД', function ($itemScope) {
+			console.debug('delete');
+			console.debug($itemScope);
+			console.debug($itemScope.patient);
+			postPatient('/archivePatient', $itemScope.patient);
+		}],
+		['<span class="glyphicon glyphicon-floppy-open"></span> Відкрити пацієнт документ', function ($itemScope) {
+			console.debug('Edit');
+			console.log($itemScope);
+			$itemScope.patient.patientUpdateOpen = !$itemScope.patient.patientUpdateOpen;
+		}]
+		];
+
+	} ] );
+	</script>
+</body>
+</html>

@@ -14,7 +14,6 @@ public class CuwyCpoeHolDb2 {
 	private JdbcTemplate jdbcTemplate;
 
 	public CuwyCpoeHolDb2() {
-		System.out.println("------CuwyCpoeHolDb2-------");
 		SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
 		dataSource.setDriverClass(Driver.class);
 		dataSource.setUrl("jdbc:h2:file:~/01_curepathway/h2-db-server/cuwy-cpoe-hol1");
@@ -22,23 +21,34 @@ public class CuwyCpoeHolDb2 {
 //		dataSource.setPassword("");
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 		System.out.println("------CuwyCpoeHolDb2-------"+jdbcTemplate);
-		testDb1();
 	}
-	
-	public List<Map<String, Object>> drug1sList() {
-		String sql = "SELECT * FROM drug1";
-		System.out.println("\n"+sql);
-		List<Map<String, Object>> drug1sList = jdbcTemplate.queryForList(sql);
-		return drug1sList;
+
+	public int updatePatient(Map<String, Object> patientToUpdate) {
+		String patientName = (String) patientToUpdate.get("PATIENT_NAME");
+		Integer patientId = (Integer) patientToUpdate.get("PATIENT_ID");
+		int update = this.jdbcTemplate.update("update patient1 set patient_name = ? where patient_id = ?",
+				patientName, patientId);
+		return update;
 	}
-	
-	public void testDb1() {
-		//create table drug1 (drug_id int PRIMARY KEY auto_increment, drug_name varchar(50) NOT NULL UNIQUE);
-		String sql = "SELECT * FROM drug1";
+	public int removePatient(Map<String, Object> removePatient) {
+		Integer patientId = (Integer) removePatient.get("PATIENT_ID");
+		int update = jdbcTemplate.update("delete from patient1 where patient_id = ?",patientId);
+		return update;
+	}
+	public Map<String, Object> newPatient(Map<String, Object> newPatient) {
+		Object patientName = newPatient.get("PATIENT_NAME");
+		jdbcTemplate.update("INSERT INTO patient1 (patient_name) VALUES (?)",patientName);
+		String sqlSelectPatient1 = "SELECT patient_id FROM patient1 WHERE patient_name = ? limit 1";
+		List<Map<String, Object>> patient1sList = jdbcTemplate.queryForList(sqlSelectPatient1, patientName);
+		Integer newPatientId = (Integer) patient1sList.get(0).get("PATIENT_ID");
+		newPatient.put("PATIENT_ID", newPatientId);
+		return newPatient;
+	}
+	public List<Map<String, Object>> patient1sList() {
+		String sql = "SELECT * FROM patient1";
 		System.out.println("\n"+sql);
-		List<Map<String, Object>> testDbSelect1
-			= jdbcTemplate.queryForList(sql);
-		System.out.println(testDbSelect1);
+		List<Map<String, Object>> patient1sList = jdbcTemplate.queryForList(sql);
+		return patient1sList;
 	}
 
 	public int updateDrug(Map<String, Object> drugToUpdate) {
@@ -48,7 +58,6 @@ public class CuwyCpoeHolDb2 {
 			drugName, drugId);
 		return update;
 	}
-
 	public int removeDrug(Map<String, Object> removeDrug) {
 		Integer drugId = (Integer) removeDrug.get("DRUG_ID");
 		int update = jdbcTemplate.update("delete from drug1 where drug_id = ?",drugId);
@@ -63,5 +72,10 @@ public class CuwyCpoeHolDb2 {
 		newDrug.put("DRUG_ID", newDrugId);
 		return newDrug;
 	}
-	
+	public List<Map<String, Object>> drug1sList() {
+		String sql = "SELECT * FROM drug1";
+		System.out.println("\n"+sql);
+		List<Map<String, Object>> drug1sList = jdbcTemplate.queryForList(sql);
+		return drug1sList;
+	}
 }
