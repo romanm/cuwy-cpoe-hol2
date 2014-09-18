@@ -27,18 +27,31 @@
 		<div class="col-xs-8">
 			<table width="100%">
 				<thead><tr><th>Nr</th><th>Медикамент</th></tr></thead>
-				<tbody data-ng-repeat="drug in drug1sList | filter: seekDrug">
+				<tbody data-ng-repeat="drug in drug1sList | filter: seekDrug | limitTo : 12">
 					<tr>
 					<td>{{drug.DRUG_ID}}</td>
 					<td ng-context-menu="menuDrugList" ng-show="!drug.drugUpdateOpen">
 						{{drug.DRUG_NAME}}
 					</td>
 					<td ng-context-menu="menuDrugList" ng-show="drug.drugUpdateOpen">
+						<div class="row">
+		<div class="col-xs-5">
 						<input ng-model="drug.DRUG_NAME" type="text" class="form-control" />
-			<button type="button" ng-click="updateDrug(drug)" class="btn btn-default">
+		</div>
+		<div class="col-xs-3">
+			<button title="Зберегти" type="button" ng-click="updateDrug(drug)" class="btn btn-default">
 				<span class="glyphicon glyphicon-floppy-disk"></span>
-				Зберегти
 			</button>
+			<span title="Вийти" class="close navbar-right" data-ng-click="drug.drugUpdateOpen = false">
+				<span class="glyphicon glyphicon-share-alt"></span>
+				<!-- 
+			x
+				<span class="glyphicon glyphicon-remove-sign"></span>
+				<span class="glyphicon glyphicon-remove-circle"></span>
+				 -->
+			</span>
+		</div>
+						</div>
 					</td>
 					</tr>
 				</tbody>
@@ -87,7 +100,7 @@
 		}
 
 		$scope.menuDrugList = [
-		['<span class="glyphicon glyphicon-floppy-open"></span> Відкрити медикамент документ', function ($itemScope) {
+		['<span class="glyphicon glyphicon-edit"></span> Корекція', function ($itemScope) {
 			console.debug('Edit');
 			console.log($itemScope);
 			$itemScope.drug.drugUpdateOpen = !$itemScope.drug.drugUpdateOpen;
@@ -98,6 +111,11 @@
 			console.debug($itemScope);
 			console.debug($itemScope.drug);
 			postDrug('/removeDrug', $itemScope.drug);
+		}],
+		['<span class="glyphicon glyphicon-floppy-open"></span> Відкрити медикамент документ', function ($itemScope) {
+			console.debug('Edit');
+			console.log($itemScope);
+			$itemScope.drug.drugUpdateOpen = !$itemScope.drug.drugUpdateOpen;
 		}]
 		];
 
