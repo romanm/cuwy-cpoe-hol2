@@ -1,25 +1,27 @@
 <!DOCTYPE html>
-<html ng-app="cuwyApp" ng-controller="lp24hCtrl">
+<html data-ng-app="cuwyApp" data-ng-controller="lp24hCtrl">
 <head>
 	<meta charset="utf-8" />
+	<title>{{siteMap.title}}</title>
 	<link href="/css/bootstrap.css" rel="stylesheet"/>
+	<link href="/css2/cuwy1-cpoe-hol1.css" rel="stylesheet"/>
 </head>
 <body>
-	<h1>Листи призначень реанімація хмельницька обласна лікарня</h1>
-	<div>
-		test
-	</div>
+	<a href="/home.html"><span class="glyphicon glyphicon-home"></span></a>
+	/ <span class="h1">{{siteMap.name}}</span>
+	<hr/>
+	<div class="container">
+	<div class="row">
+	<div class="col-xs-12">
 	<table>
 		<thead>
 			<tr>
-				<th>N</th>
-				<th>
-				Призначеня
-				</th>
+				<th>N</th><th>Призначеня</th>
 				<th data-ng-repeat="dayHour in dayHours">
 					|
 					{{$index>9?'':'0'}}{{dayHour}}
 				</th>
+				<th>|</th>
 			</tr>
 		</thead>
 		<tbody data-ng-repeat="taskInDay in tasksInDay">
@@ -43,14 +45,24 @@
 			</tr>
 		</tbody>
 	</table>
+	</div>
+	</div>
+	</div>
+	
+	
 	<script src="/js/jquery-2.1.1.min.js"></script>
 	<script src="/js/bootstrap.min.js"></script>
 	<script src="/js/angular.min.js"></script>
+	<script src="/js/angular-sanitize.min.js"></script>
 	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script src='/js/textAngular-sanitize.min.js'></script>
+	<script src='/js/textAngular.min.js'></script>
+	<script src="/js2/cuwy1.config.js"></script>
+	<script src="/js2/cuwy1.directives.js"></script>
 	<script type="text/javascript">
-	var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
 	cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		console.log("lp24hCtrl");
+		$scope.siteMap = config.siteMap.siteMaps[2];
 		var dayHours = [];
 		for(var i=0;i<24;i++) dayHours.push(i);
 		$scope.dayHours = dayHours;

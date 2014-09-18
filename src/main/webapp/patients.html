@@ -2,12 +2,16 @@
 <html ng-app="cuwyApp" ng-controller="patientsCtrl">
 <head>
 	<meta charset="utf-8" />
+	<title>{{siteMap.title}}</title>
 	<link href="/css/bootstrap.css" rel="stylesheet"/>
+	<link href="/css2/cuwy1-cpoe-hol1.css" rel="stylesheet"/>
 </head>
 <body>
+<a href="/home.html"><span class="glyphicon glyphicon-home"></span></a>
+/ <span class="h1">{{siteMap.name}}</span>
+<hr/>
 <div class="container">
 	<div class="row">
-		<h1>Пацієнти</h1>
 		<div class="col-xs-6">
 			<div class="input-group">
 				<span class="input-group-addon">Пошук:</span>
@@ -73,12 +77,14 @@
 	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
 	<script src='/js/textAngular-sanitize.min.js'></script>
 	<script src='/js/textAngular.min.js'></script>
-	<script src="/js/cuwy1.directives.js"></script>
+	<script src="/js2/cuwy1.config.js"></script>
+	<script src="/js2/cuwy1.directives.js"></script>
 	<script src="/db/patient1sList.json.js"></script>
 	<script type="text/javascript">
 	//var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
 	cuwyApp.controller('patientsCtrl', [ '$scope', '$http', function ($scope, $http) {
 		console.log("patientsCtrl");
+		$scope.siteMap = config.siteMap.siteMaps[0];
 		$scope.patient1sList = patient1sList;
 
 		$scope.saveNewPatient = function(){

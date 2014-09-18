@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html data-ng-app="cuwyApp" data-ng-controller="homeCtrl">
+<head>
+	<meta charset="utf-8" />
+	<link href="/css/bootstrap.css" rel="stylesheet"/>
+	<link href="/css2/cuwy1-cpoe-hol1.css" rel="stylesheet"/>
+	<title>{{siteMap.title}}</title>
+</head>
+<body>
+	<h1>{{siteMap.name}}</h1>
+	<hr/>
+	<h2>
+		<a href="{{siteMap.siteMaps[0].url}}">{{siteMap.siteMaps[0].name}}</a>
+	</h2>
+	<hr/>
+	<h3>
+		<a href="{{siteMap.siteMaps[1].url}}">{{siteMap.siteMaps[1].name}}</a>
+	</h3>
+	<div>
+		<a href="{{siteMap.siteMaps[2].url}}">{{siteMap.siteMaps[2].name}}</a>
+	</div>
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js/angular-sanitize.min.js"></script>
+	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script src='/js/textAngular-sanitize.min.js'></script>
+	<script src='/js/textAngular.min.js'></script>
+	<script src="/js2/cuwy1.config.js"></script>
+	<script src="/js2/cuwy1.directives.js"></script>
+	<script type="text/javascript">
+	cuwyApp.controller('homeCtrl', [ '$scope', '$http', function ($scope, $http) {
+		$scope.siteMap = config.siteMap;
+	} ] );
+	</script>
+</body>
+</html>
