@@ -1,8 +1,10 @@
-package hello;
+package dev;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -152,5 +154,21 @@ public class GreetingController {
 		return new Greeting(counter.incrementAndGet(),
 				String.format(template, name));
 	}
+	//--------------------
+	@RequestMapping(value = "/dev/prescribes", method = RequestMethod.GET)
+	public @ResponseBody Map<String, Object> devPrescribes() {
+		HashMap<String, Object> prescribes = new HashMap<String, Object>();
+		prescribes.put("prescribes_name", "Some prescribes for some desease in some reanimation");
+		ArrayList<Object> tasks = new ArrayList<Object>();
+		HashMap<String, Object> drug = new HashMap<String, Object>();
+		drug.put("drug_name", "Analgin");
+		tasks.add(drug);
+		drug = new HashMap<String, Object>();
+		drug.put("drug_name", "Dimedrol");
+		tasks.add(drug);
+		prescribes.put("tasks", tasks);
+		return prescribes;
+	}
+	//--------------------
 
 }
