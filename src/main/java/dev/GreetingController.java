@@ -155,6 +155,13 @@ public class GreetingController {
 				String.format(template, name));
 	}
 	//--------------------
+	@RequestMapping(value = "/dev/prescribes/save", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> saveDevPrescribes(
+			@RequestBody HashMap<String, Object> prescribes) {
+		System.out.println("/dev/prescribes/save");
+		System.out.println(prescribes);
+		return prescribes;
+	}
 	@RequestMapping(value = "/dev/prescribes", method = RequestMethod.GET)
 	public @ResponseBody Map<String, Object> devPrescribes() {
 		HashMap<String, Object> prescribes = new HashMap<String, Object>();

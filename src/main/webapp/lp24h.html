@@ -14,6 +14,27 @@
 	<div class="row">
 	<div class="col-xs-12">
 	<table>
+	<caption>
+	Name: 
+	<span ng-context-menu="menuPrescribe" ng-show="!prescribes.editPrescribesName">
+	{{prescribes.prescribes_name}}
+	</span>
+	<span ng-context-menu="menuPrescribe" ng-show="prescribes.editPrescribesName">
+		<div class="row">
+			<div class="col-xs-5">
+				<input ng-model="prescribes.prescribes_name" type="text" class="form-control" />
+			</div>
+			<div class="col-xs-3">
+				<button title="Зберегти" type="button" ng-click="devPost()" class="btn btn-default">
+					<span class="glyphicon glyphicon-floppy-disk"></span>
+				</button>
+				<span title="Вийти" class="close navbar-right" data-ng-click="drug.drugUpdateOpen = false">
+					<span class="glyphicon glyphicon-share-alt"></span>
+				</span>
+			</div>
+		</div>
+	</span>
+	</caption>
 		<thead>
 			<tr>
 				<th>N</th><th>Призначеня</th>
@@ -27,14 +48,13 @@
 		<tbody data-ng-repeat="taskInDay in tasksInDay">
 			<tr>
 				<td>{{$index + 1 }}</td>
-				<td ng-click="taskInDay.isCollapsed = !taskInDay.isCollapsed"
+				<td data-ng-click="taskInDay.isCollapsed = !taskInDay.isCollapsed"
 				title="{{taskInDay.isCollapsed}}"
 				>
-				task
+				{{prescribes.tasks[$index].drug_name == null ? "-":prescribes.tasks[$index].drug_name}}
 				</td>
-				<td data-ng-repeat="dayHour in dayHours">
-				.
-				</td>
+				<td data-ng-repeat="dayHour in dayHours"> .  </td>
+				<td>.</td>
 			</tr>
 			<tr data-ng-if="taskInDay.isCollapsed">
 				<td />
@@ -71,6 +91,41 @@
 			tasksInDay.push({i:ii,isCollapsed:false});
 		}
 		$scope.tasksInDay = tasksInDay;
+		
+		$http({
+			method : 'GET',
+			url : '/dev/prescribes'
+		}).success(function(data, status, headers, config) {
+			console.log(data);
+			$scope.prescribes = data;
+		}).error(function(data, status, headers, config) {
+		});
+
+		$scope.devPost = function(){
+			console.log("--------devPost-----------");
+			$scope.prescribes.editPrescribesName = false;
+			$http({
+				method : 'POST',
+				data : $scope.prescribes,
+				url : "/dev/prescribes/save"
+			}).success(function(data, status, headers, config){
+				console.log(data);
+				$scope.prescribes = data;
+			}).error(function(data, status, headers, config) {
+				$scope.error = data;
+			});
+
+		}
+
+		$scope.menuPrescribe = [
+			['<span class="glyphicon glyphicon-edit"></span> Корекція', function ($itemScope) {
+				console.debug('Edit');
+				console.log($itemScope);
+				$itemScope.prescribes.editPrescribesName = !$itemScope.prescribes.editPrescribesName;
+				console.log($itemScope.prescribes.editPrescribesName);
+			}]
+		];
+
 	} ] );
 	</script>
 </body>
