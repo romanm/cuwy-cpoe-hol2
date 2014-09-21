@@ -6,7 +6,7 @@ var drug1sList = [ {
   "DRUG_NAME" : "Норадреналін"
 }, {
   "DRUG_ID" : 3,
-  "DRUG_NAME" : "Heparin"
+  "DRUG_NAME" : "Гепарин"
 }, {
   "DRUG_ID" : 18,
   "DRUG_NAME" : "NaCl 0.9%"
@@ -15,7 +15,7 @@ var drug1sList = [ {
   "DRUG_NAME" : "Фіз.розчин"
 }, {
   "DRUG_ID" : 20,
-  "DRUG_NAME" : "Analgin"
+  "DRUG_NAME" : "Анальгін"
 }, {
   "DRUG_ID" : 21,
   "DRUG_NAME" : "Дімедрол"

@@ -10,12 +10,13 @@
 	<a href="/home.html"><span class="glyphicon glyphicon-home"></span></a>
 	/ <span class="h1">{{siteMap.name}}</span>
 	<span class="navbar-right">
-		{{numberOfChange}}
-		<span ng-show="numberOfChange > 0">
-		<a ng-click="devPost()">
-			<span class="glyphicon glyphicon-floppy-disk"></span>
-		</a>
-		</span>
+		<ul class="nav nav-pills" title="{{numberOfChange}} незбережених змін">
+			<li ng-class="{'disabled': numberOfChange == 0}">
+				<a ng-click="devPost()" href="#">
+					<span class="glyphicon glyphicon-floppy-disk"></span></a>
+					{{numberOfChange}}
+			</li>
+		</ul>
 	</span>
 	<hr/>
 	<div class="container">
@@ -25,7 +26,7 @@
 	<caption>
 	Name: 
 	<span ng-context-menu="menuPrescribe" ng-show="!prescribes.editPrescribesName">
-	{{prescribes.PRESCRIBE_NAME}}
+		{{prescribes.PRESCRIBE_NAME}}
 	</span>
 	<span ng-context-menu="menuPrescribe" ng-show="prescribes.editPrescribesName">
 		<div class="row">
@@ -57,6 +58,7 @@
 			<tr>
 				<td>{{$index + 1 }}</td>
 				<td data-ng-click="taskInDay.isCollapsed = !taskInDay.isCollapsed"
+				ng-context-menu="menuTask"
 				title="{{taskInDay.isCollapsed}}"
 				>
 				{{prescribes.tasks[$index].DRUG_NAME == null ? "-":prescribes.tasks[$index].DRUG_NAME}}
@@ -145,6 +147,8 @@
 		}).success(function(data, status, headers, config) {
 			console.log(data);
 			$scope.prescribes = data;
+			if(null == $scope.prescribes.tasks)
+				$scope.prescribes.tasks = [];
 		}).error(function(data, status, headers, config) {
 		});
 
@@ -172,22 +176,84 @@
 			$http({
 				method : 'POST',
 				data : $scope.prescribes,
-				url : "/dev/prescribes/save"
+				url : "/save/prescribes"
 			}).success(function(data, status, headers, config){
 				console.log(data);
 				$scope.prescribes = data;
 			}).error(function(data, status, headers, config) {
 				$scope.error = data;
 			});
+		}
 
+		moveTo = function(arrayToSort, indexFrom, indexTo){
+			var el = arrayToSort.splice(indexFrom, 1);
+			arrayToSort.splice(indexTo, 0, el[0]);
+		}
+
+		moveUp = function(arrayToSort, index){
+			moveTo(arrayToSort, index,index-1);
 		}
 
 		$scope.menuPrescribe = [
 			['<span class="glyphicon glyphicon-edit"></span> Корекція', function ($itemScope) {
 				console.debug('Edit');
 				console.log($itemScope);
+				
 				$itemScope.prescribes.editPrescribesName = !$itemScope.prescribes.editPrescribesName;
 				console.log($itemScope.prescribes.editPrescribesName);
+			}]
+		];
+
+		$scope.menuTask = [
+			['Copy', function ($itemScope) {
+				console.log('Copy');
+				console.log($itemScope);
+				console.log($itemScope.taskInDayIndex);
+				var drug = $itemScope.prescribes.tasks[$itemScope.taskInDayIndex];
+				console.log(drug);
+				$http({
+					method : 'POST',
+					data : drug,
+					url : "/session/copy"
+				}).success(function(data, status, headers, config){
+					console.log(data);
+				}).error(function(data, status, headers, config) {
+					$scope.error = data;
+				});
+			}],
+			['Paste', function ($itemScope) {
+				console.log('Paste');
+				console.log($itemScope);
+				$http({
+					method : 'GET',
+					url : '/session/paste'
+				}).success(function(data, status, headers, config) {
+					console.log(data);
+				}).error(function(data, status, headers, config) {
+				});
+			}],
+			null,
+			['<span class="glyphicon glyphicon-arrow-up"></span> Догори', function ($itemScope) {
+				console.log($itemScope.prescribes.tasks);
+				var arrayToSort = $itemScope.prescribes.tasks;
+				var index = $itemScope.$index;
+				if(index > 0){
+					moveUp(arrayToSort, index);
+				}else{
+					moveTo(arrayToSort, 0, arrayToSort.length-1);
+				}
+			}],
+			['<span class="glyphicon glyphicon-arrow-down"></span> Донизу', function ($itemScope) {
+				console.log('Down');
+				console.log($itemScope.prescribes.tasks);
+				console.log($itemScope);
+				var index = $itemScope.$index + 1;
+				var arrayToSort = $itemScope.prescribes.tasks;
+				if(index < arrayToSort.length){
+					moveUp(arrayToSort, index);
+				}else{
+					moveTo(arrayToSort, index-1,0);
+				}
 			}]
 		];
 

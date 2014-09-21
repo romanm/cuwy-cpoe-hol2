@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,21 +256,42 @@ public class GreetingController {
 		return prescribes;
 	}
 
+	@RequestMapping(value = "/session/paste", method = RequestMethod.GET)
+	public @ResponseBody Map<String, Object> sessionPaste(HttpSession session){
+		System.out.println(session);
+		Map<String, Object> copyObj = (Map<String, Object>) session.getAttribute("copyObj");
+		System.out.println(copyObj);
+		return copyObj;
+	}
+	@RequestMapping(value = "/session/copy", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> sessionCopy(
+			@RequestBody Map<String, Object> copyObj, HttpSession session){
+		System.out.println(copyObj);
+		System.out.println(session);
+		session.setAttribute("copyObj", copyObj);
+		return copyObj;
+	}
+
+	@RequestMapping(value = "/save/prescribes", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> savePrescribes(
+			@RequestBody Map<String, Object> prescribes){
+		Integer prescribeId = (Integer) prescribes.get("PRESCRIBE_ID");
+		String fileNameWithPathAdd = getPrescribeDbJsonName(prescribeId);
+		writeToJsonDbFile(prescribes, fileNameWithPathAdd);
+		return prescribes;
+	}
 	@RequestMapping(value="/read/prescribe_{prescribeId}", method=RequestMethod.GET)
 	public @ResponseBody Map<String, Object> readDevPrescribes(@PathVariable Integer prescribeId) {
-//		Map<String, Object> readJsonDbFile2map = readJsonDbFile2map(fileNamePrescribes);
-		String fileNameWithPathAdd = "prescribe/prescribe_"+ prescribeId+ ".json";
+		String fileNameWithPathAdd = getPrescribeDbJsonName(prescribeId);
 		Map<String, Object> readJsonDbFile2map = readJsonDbFile2map(fileNameWithPathAdd);
-		System.out.println("readJsonDbFile2map");
 		if(null == readJsonDbFile2map){
-			System.out.println("---------------------- 1");
 			readJsonDbFile2map = cuwyCpoeHolDb2.readPrescribe(prescribeId);
-			System.out.println("---------------------- 2");
 			writeToJsonDbFile(readJsonDbFile2map, fileNameWithPathAdd);
 		}
-		System.out.println(readJsonDbFile2map);
-		System.out.println(readJsonDbFile2map.get("tasks"));
 		return readJsonDbFile2map;
+	}
+	private String getPrescribeDbJsonName(Integer prescribeId) {
+		return "prescribe/prescribe_"+ prescribeId+ ".json";
 	}
 
 	@RequestMapping(value = "/dev/prescribes/read", method = RequestMethod.GET)
