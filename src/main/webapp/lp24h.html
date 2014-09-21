@@ -13,8 +13,9 @@
 		<ul class="nav nav-pills" title="{{numberOfChange}} незбережених змін">
 			<li ng-class="{'disabled': numberOfChange == 0}">
 				<a ng-click="devPost()" href="#">
-					<span class="glyphicon glyphicon-floppy-disk"></span></a>
+					<span class="glyphicon glyphicon-floppy-disk"></span>
 					{{numberOfChange}}
+					</a>
 			</li>
 		</ul>
 	</span>
@@ -71,18 +72,17 @@
 				<td class="well" colspan="18">
 					<span class="close navbar-right">
 					<small>
-					ed1 | ed2 | ed3 |
+					ліка | доза | час |
 					<a data-ng-click="taskInDay.isCollapsed = false">
 						<span class="glyphicon glyphicon-share-alt"></span>
 					</a>
 					</small>
 					</span>
-				<div class="row-fluid">
-				hello
-				{{taskInDay}}
-				{{taskInDayIndex}}
+				<div class="row-fluid" title="{{taskInDay}}">
+				ЛІКА
+				{{taskInDayIndex + 1}}
 				</div>
-				
+
 <form class="navbar-form navbar-left" role="search">
 	<div class="form-group">
 		<div class="input-group">
@@ -153,6 +153,7 @@
 		});
 
 		$scope.drugToTask = function(drug, taskInDay){
+			console.log("drugToTask");
 			console.log(drug);
 			console.log(taskInDay);
 			var addNull = taskInDay.i - $scope.prescribes.tasks.length;
@@ -170,6 +171,7 @@
 			}
 			console.log($scope.prescribes.tasks);
 		}
+
 		$scope.devPost = function(){
 			console.log("--------devPost-----------");
 			$scope.prescribes.editPrescribesName = false;
@@ -229,6 +231,9 @@
 					url : '/session/paste'
 				}).success(function(data, status, headers, config) {
 					console.log(data);
+					var drug = data;
+					console.log($itemScope.taskInDay);
+					$scope.drugToTask(drug, $itemScope.taskInDay);
 				}).error(function(data, status, headers, config) {
 				});
 			}],
