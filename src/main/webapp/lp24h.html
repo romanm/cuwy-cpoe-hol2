@@ -9,6 +9,14 @@
 <body>
 	<a href="/home.html"><span class="glyphicon glyphicon-home"></span></a>
 	/ <span class="h1">{{siteMap.name}}</span>
+	<span class="navbar-right">
+		{{numberOfChange}}
+		<span ng-show="numberOfChange > 0">
+		<a ng-click="devPost()">
+			<span class="glyphicon glyphicon-floppy-disk"></span>
+		</a>
+		</span>
+	</span>
 	<hr/>
 	<div class="container">
 	<div class="row">
@@ -45,22 +53,53 @@
 				<th>|</th>
 			</tr>
 		</thead>
-		<tbody data-ng-repeat="taskInDay in tasksInDay">
+		<tbody data-ng-repeat="taskInDay in tasksInDay" ng-init="taskInDayIndex = $index">
 			<tr>
 				<td>{{$index + 1 }}</td>
 				<td data-ng-click="taskInDay.isCollapsed = !taskInDay.isCollapsed"
 				title="{{taskInDay.isCollapsed}}"
 				>
-				{{prescribes.tasks[$index].drug_name == null ? "-":prescribes.tasks[$index].drug_name}}
+				{{prescribes.tasks[$index].DRUG_NAME == null ? "-":prescribes.tasks[$index].DRUG_NAME}}
 				</td>
-				<td data-ng-repeat="dayHour in dayHours"> .  </td>
+				<td data-ng-repeat="dayHour in dayHours"> . </td>
 				<td>.</td>
 			</tr>
 			<tr data-ng-if="taskInDay.isCollapsed">
 				<td />
 				<td class="well" colspan="18">
+					<span class="close navbar-right">
+					<small>
+					ed1 | ed2 | ed3 |
+					<a data-ng-click="taskInDay.isCollapsed = false">
+						<span class="glyphicon glyphicon-share-alt"></span>
+					</a>
+					</small>
+					</span>
+				<div class="row-fluid">
 				hello
 				{{taskInDay}}
+				{{taskInDayIndex}}
+				</div>
+				
+<form class="navbar-form navbar-left" role="search">
+	<div class="form-group">
+		<div class="input-group">
+			<span class="input-group-addon">Пошук:</span>
+			<input type="text" class="form-control" ng-model="seekDrug" auto-focus="" placeholder="Медикамент пошук / запис">
+		</div>
+	</div>
+	<button type="submit" ng-click="saveNewDrug()" class="btn btn-default">
+		<span class="glyphicon glyphicon-floppy-disk"></span>
+	</button>
+	<div>
+	<div data-ng-repeat="drug in drug1sList | filter: seekDrug | limitTo : 12">
+		<a ng-click="drugToTask(drug, taskInDay)">
+		{{drug.DRUG_NAME}}
+		{{$index}}
+		</a>
+	</div>
+	</div>
+</form>
 				</td>
 			</tr>
 		</tbody>
@@ -77,11 +116,14 @@
 	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
 	<script src='/js/textAngular-sanitize.min.js'></script>
 	<script src='/js/textAngular.min.js'></script>
+	<script src="/db/drug1sList.json.js"></script>
 	<script src="/js2/cuwy1.config.js"></script>
 	<script src="/js2/cuwy1.directives.js"></script>
 	<script type="text/javascript">
 	cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		console.log("lp24hCtrl");
+		$scope.numberOfChange = 0;
+		$scope.drug1sList = drug1sList;
 		$scope.parameters = parameters;
 		if(!$scope.parameters.id)
 			$scope.parameters.id = 0;
@@ -106,6 +148,24 @@
 		}).error(function(data, status, headers, config) {
 		});
 
+		$scope.drugToTask = function(drug, taskInDay){
+			console.log(drug);
+			console.log(taskInDay);
+			var addNull = taskInDay.i - $scope.prescribes.tasks.length;
+			if(addNull > 0){
+				for (i = 0; i < addNull; i++) {
+					$scope.prescribes.tasks.push(null);
+				}
+				$scope.prescribes.tasks.push(drug);
+				$scope.numberOfChange++;
+			}else if(null == $scope.prescribes.tasks[taskInDay.i]){
+				$scope.prescribes.tasks[taskInDay.i] = drug;
+				$scope.numberOfChange++;
+			}else{
+				console.log("rewrite drug? watch with times? ");
+			}
+			console.log($scope.prescribes.tasks);
+		}
 		$scope.devPost = function(){
 			console.log("--------devPost-----------");
 			$scope.prescribes.editPrescribesName = false;

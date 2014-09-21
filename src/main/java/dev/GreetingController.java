@@ -1,8 +1,6 @@
 package dev;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -181,13 +179,37 @@ public class GreetingController {
 	String applicationFolderPfad = "/home/roman/Documents/01_curepathway/work3/cuwy-cpoe-hol2/";
 	String innerDbFolderPfad = "src/main/webapp/db/";
 
-	private void writeToJsDbFile(String variable, Object objectForJson, String fileName) {
+	private void writeToJsDbFileLinie(String variable, Object objectForJson, String fileName) {
 		File file = new File(applicationFolderPfad + innerDbFolderPfad + fileName);
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			FileOutputStream fileOutputStream = new FileOutputStream(file);
 			fileOutputStream.write(variable.getBytes());
 			mapper.writeValue(fileOutputStream, objectForJson);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	private void writeToJsDbFile(String variable, Object objectForJson, String fileName) {
+		File file = new File(applicationFolderPfad + innerDbFolderPfad + fileName);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			fileOutputStream.write(variable.getBytes());
+			writerWithDefaultPrettyPrinter.writeValue(fileOutputStream, objectForJson);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	private void writeToJsonDbFile(Object java2jsonObject, String fileName) {
+		File file = new File(applicationFolderPfad + innerDbFolderPfad + fileName);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
+		try {
+			logger.warn(writerWithDefaultPrettyPrinter.writeValueAsString(java2jsonObject));
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			writerWithDefaultPrettyPrinter.writeValue(fileOutputStream, java2jsonObject);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -209,19 +231,6 @@ public class GreetingController {
 			e1.printStackTrace();
 		}
 		return readJsonDbFile2map;
-	}
-
-	private void writeToJsonDbFile(Object java2jsonObject, String fileName) {
-		File file = new File(applicationFolderPfad + innerDbFolderPfad + fileName);
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
-		try {
-			logger.warn(writerWithDefaultPrettyPrinter.writeValueAsString(java2jsonObject));
-			FileOutputStream fileOutputStream = new FileOutputStream(file);
-			writerWithDefaultPrettyPrinter.writeValue(fileOutputStream, java2jsonObject);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	private final AtomicLong counter = new AtomicLong();
