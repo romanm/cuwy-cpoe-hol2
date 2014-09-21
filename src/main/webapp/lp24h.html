@@ -17,12 +17,12 @@
 	<caption>
 	Name: 
 	<span ng-context-menu="menuPrescribe" ng-show="!prescribes.editPrescribesName">
-	{{prescribes.prescribes_name}}
+	{{prescribes.PRESCRIBE_NAME}}
 	</span>
 	<span ng-context-menu="menuPrescribe" ng-show="prescribes.editPrescribesName">
 		<div class="row">
 			<div class="col-xs-5">
-				<input ng-model="prescribes.prescribes_name" type="text" class="form-control" />
+				<input ng-model="prescribes.PRESCRIBE_NAME" type="text" class="form-control" />
 			</div>
 			<div class="col-xs-3">
 				<button title="Зберегти" type="button" ng-click="devPost()" class="btn btn-default">
@@ -82,6 +82,11 @@
 	<script type="text/javascript">
 	cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		console.log("lp24hCtrl");
+		$scope.parameters = parameters;
+		if(!$scope.parameters.id)
+			$scope.parameters.id = 0;
+		console.log($scope.parameters);
+
 		$scope.siteMap = config.siteMap.siteMaps[2];
 		var dayHours = [];
 		for(var i=0;i<24;i++) dayHours.push(i);
@@ -94,7 +99,7 @@
 		
 		$http({
 			method : 'GET',
-			url : '/dev/prescribes'
+			url : '/read/prescribe_'+$scope.parameters.id
 		}).success(function(data, status, headers, config) {
 			console.log(data);
 			$scope.prescribes = data;

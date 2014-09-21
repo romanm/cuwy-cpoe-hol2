@@ -23,6 +23,41 @@ public class CuwyCpoeHolDb2 {
 		System.out.println("------CuwyCpoeHolDb2-------"+jdbcTemplate);
 	}
 	
+	public int updatePrescribeOrder(Map<String, Object> prescribeToUpdate) {
+		String prescribeName = (String) prescribeToUpdate.get("PRESCRIBE_NAME");
+		Integer prescribeId = (Integer) prescribeToUpdate.get("PRESCRIBE_ID");
+		int update = this.jdbcTemplate.update("update prescribe1 set prescribe_name = ? where prescribe_id = ? ",
+			prescribeName, prescribeId);
+		return update;
+	}
+	public int removePrescribeOrder(Map<String, Object> removePatient) {
+		Integer prescribeId = (Integer) removePatient.get("PRESCRIBE_ID");
+		int update = jdbcTemplate.update("delete from prescribe1 where prescribe_id = ?",prescribeId);
+		return update;
+	}
+	public Map<String, Object> newPrescribe(Map<String, Object> newPrescribeOrder) {
+		Object prescribeName = newPrescribeOrder.get("PRESCRIBE_NAME");
+		jdbcTemplate.update("INSERT INTO prescribe1 (prescribe_name) VALUES (?)",prescribeName);
+		String sqlSelectPatient1 = "SELECT prescribe_id FROM prescribe1 WHERE prescribe_name = ? ORDER BY prescribe_id DESC LIMIT 1";
+		List<Map<String, Object>> prescribe1sList = jdbcTemplate.queryForList(sqlSelectPatient1, prescribeName);
+		Integer newPrescribeId = (Integer) prescribe1sList.get(0).get("PRESCRIBE_ID");
+		newPrescribeOrder.put("PRESCRIBE_ID", newPrescribeId);
+		return newPrescribeOrder;
+	}
+	public Map<String, Object> readPrescribe(Integer id) {
+		String sql = "SELECT * FROM prescribe1 WHERE prescribe_id = ?";
+		System.out.println("\n"+sql.replaceFirst("\\?", ""+id));
+		List<Map<String, Object>> prescribe1sList = jdbcTemplate.queryForList(sql, id);
+		Map<String, Object> map = prescribe1sList.get(0);
+		return map;
+	}
+	public List<Map<String, Object>> prescribe1sList() {
+		String sql = "SELECT * FROM prescribe1 ";
+		System.out.println("\n"+sql);
+		List<Map<String, Object>> prescribe1sList = jdbcTemplate.queryForList(sql);
+		return prescribe1sList;
+	}
+
 	public int updateProtocolOrder(Map<String, Object> patientToUpdate) {
 		String patientName = (String) patientToUpdate.get("ORDER_NAME");
 		Integer patientId = (Integer) patientToUpdate.get("ORDER_ID");
