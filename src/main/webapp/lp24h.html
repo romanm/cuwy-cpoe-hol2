@@ -35,7 +35,10 @@
 				<input ng-model="prescribes.PRESCRIBE_NAME" type="text" class="form-control" />
 			</div>
 			<div class="col-xs-3">
+			<!-- 
 				<button title="Зберегти" type="button" ng-click="devPost()" class="btn btn-default">
+			 -->
+				<button title="Зберегти" type="button" ng-click="numberOfChange = numberOfChange +1" class="btn btn-default">
 					<span class="glyphicon glyphicon-floppy-disk"></span>
 				</button>
 				<span title="Вийти" class="close navbar-right" data-ng-click="prescribes.editPrescribesName = false">
@@ -47,7 +50,8 @@
 	</caption>
 		<thead>
 			<tr>
-				<th>N</th><th>Призначеня</th>
+				<th>N</th>
+				<th data-ng-context-menu="menuTasksAll" >Призначеня</th>
 				<th data-ng-repeat="dayHour in dayHours">
 					|
 					{{$index>9?'':'0'}}{{dayHour}}
@@ -57,9 +61,12 @@
 		</thead>
 		<tbody data-ng-repeat="taskInDay in tasksInDay" ng-init="taskInDayIndex = $index">
 			<tr>
-				<td>{{$index + 1 }}</td>
+				<td>
+					<u data-ng-show="prescribes.tasks.length == $index + 1">{{$index + 1}}</u>
+					<span data-ng-show="prescribes.tasks.length != $index + 1">{{$index + 1 }}</span>
+				</td>
 				<td data-ng-click="taskInDay.isCollapsed = !taskInDay.isCollapsed"
-				ng-context-menu="menuTask"
+				data-ng-context-menu="menuTask"
 				title="{{taskInDay.isCollapsed}}"
 				>
 				{{prescribes.tasks[$index].DRUG_NAME == null ? "-":prescribes.tasks[$index].DRUG_NAME}}
@@ -109,8 +116,10 @@
 	</div>
 	</div>
 	</div>
-	
-	
+
+	<hr/>
+	<a href="protocols.html">Сторінка протоколів і схем призначень</a>
+
 	<script src="/js/jquery-2.1.1.min.js"></script>
 	<script src="/js/bootstrap.min.js"></script>
 	<script src="/js/angular.min.js"></script>
@@ -196,6 +205,34 @@
 			moveTo(arrayToSort, index,index-1);
 		}
 
+		contextMenuPaste = function($itemScope){
+			console.log('Paste');
+			console.log($itemScope);
+			$http({
+				method : 'GET',
+				url : '/session/paste'
+			}).success(function(data, status, headers, config) {
+				console.log(data);
+				var drug = data;
+				console.log($itemScope.taskInDay);
+				$scope.drugToTask(drug, $itemScope.taskInDay);
+			}).error(function(data, status, headers, config) {
+			});
+		}
+		contextMenuCopy = function(copyObject){
+			console.log("contextMenuCopy");
+			console.log(copyObject);
+			$http({
+				method : 'POST',
+				data : copyObject,
+				url : "/session/copy"
+			}).success(function(data, status, headers, config){
+				console.log(data);
+			}).error(function(data, status, headers, config) {
+				$scope.error = data;
+			});
+		}
+
 		$scope.menuPrescribe = [
 			['<span class="glyphicon glyphicon-edit"></span> Корекція', function ($itemScope) {
 				console.debug('Edit');
@@ -205,37 +242,40 @@
 				console.log($itemScope.prescribes.editPrescribesName);
 			}]
 		];
-
+		$scope.menuTasksAll = [
+			['Copy', function ($itemScope) { contextMenuCopy($itemScope.prescribes); }],
+			['Paste', function ($itemScope) { 
+				$http({
+					method : 'GET',
+					url : '/session/paste'
+				}).success(function(data, status, headers, config) {
+					if($scope.prescribes.tasks.length == 0){
+						$scope.prescribes.tasks = data.tasks;
+						$scope.numberOfChange += $scope.prescribes.tasks.length;
+					}
+				}).error(function(data, status, headers, config) {
+				});
+			}]
+		];
 		$scope.menuTask = [
-			['Copy', function ($itemScope) {
+			['Copy', function ($itemScope) { 
 				console.log('Copy');
 				console.log($itemScope);
 				console.log($itemScope.taskInDayIndex);
 				var drug = $itemScope.prescribes.tasks[$itemScope.taskInDayIndex];
 				console.log(drug);
-				$http({
-					method : 'POST',
-					data : drug,
-					url : "/session/copy"
-				}).success(function(data, status, headers, config){
-					console.log(data);
-				}).error(function(data, status, headers, config) {
-					$scope.error = data;
-				});
+				contextMenuCopy(drug); 
 			}],
-			['Paste', function ($itemScope) {
-				console.log('Paste');
-				console.log($itemScope);
-				$http({
-					method : 'GET',
-					url : '/session/paste'
-				}).success(function(data, status, headers, config) {
-					console.log(data);
-					var drug = data;
-					console.log($itemScope.taskInDay);
-					$scope.drugToTask(drug, $itemScope.taskInDay);
-				}).error(function(data, status, headers, config) {
-				});
+			['Paste', function ($itemScope) { contextMenuPaste($itemScope); }],
+			null,
+			['Додати строчку', function ($itemScope) {
+				$itemScope.prescribes.tasks.splice($itemScope.$index, 0, null);
+				$scope.numberOfChange++;
+			}],
+			['Видалити', function ($itemScope) {
+				console.log('Delete');
+				$itemScope.prescribes.tasks.splice($itemScope.$index, 1);
+				$scope.numberOfChange++;
 			}],
 			null,
 			['<span class="glyphicon glyphicon-arrow-up"></span> Догори', function ($itemScope) {

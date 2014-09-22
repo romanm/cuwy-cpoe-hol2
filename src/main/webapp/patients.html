@@ -42,7 +42,9 @@
 					<tr>
 					<td>{{patient.PATIENT_ID}}</td>
 					<td ng-context-menu="menuPatientList" ng-show="!patient.patientUpdateOpen">
+					<a href="patient.html?id={{patient.PATIENT_ID}}">
 						{{patient.PATIENT_NAME}}
+					</a>
 					</td>
 					<td ng-context-menu="menuPatientList" ng-show="patient.patientUpdateOpen">
 						<div class="row">

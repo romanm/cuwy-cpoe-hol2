@@ -7,7 +7,8 @@ var config = {
 			{title:"ХОЛ::Ліки",name:"Ліки",url:"drugs.html"},
 			{title:"Редактор: Лист призначень реанімація"
 				,name:"Редактор: Лист призначень 24 години на добу - реанімація ", url:"lp24h.html"},
-			{title:"ХОЛ::Протоколи",name:"Протоколи лікування",url:"protocols.html"}
+			{title:"ХОЛ::Протоколи",name:"Протоколи лікування",url:"protocols.html"},
+			{title:"Пацієнт",name:"Пацієнт - ",url:"patient.html"}
 		]
 	}
 };

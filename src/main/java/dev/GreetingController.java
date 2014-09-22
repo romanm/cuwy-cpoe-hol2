@@ -41,8 +41,8 @@ public class GreetingController {
 		System.out.println(newProtocol);
 		newProtocol = cuwyCpoeHolDb2.newProtocolOrder(newProtocol);
 		System.out.println(newProtocol);
-		List<Map<String, Object>> patient1sList = protocol1sList();
-		return patient1sList;
+		List<Map<String, Object>> protocol1sList = protocol1sList();
+		return protocol1sList;
 	}
 	@RequestMapping(value = "/removeProtocolOrder", method = RequestMethod.POST)
 	public @ResponseBody List<Map<String, Object>> removeProtocol(@RequestBody Map<String, Object> protocolOrderToRemove) {
@@ -50,25 +50,27 @@ public class GreetingController {
 		System.out.println(protocolOrderToRemove);
 		int removeProtocolId = cuwyCpoeHolDb2.removeProtocolOrder(protocolOrderToRemove);
 		System.out.println(removeProtocolId);
-		List<Map<String, Object>> patient1sList = protocol1sList();
-		return patient1sList;
+		List<Map<String, Object>> protocol1sList = protocol1sList();
+		return protocol1sList;
 	}
 	@RequestMapping(value = "/updateProtocol", method = RequestMethod.POST)
 	public @ResponseBody List<Map<String, Object>> updateProtocol(@RequestBody Map<String, Object> protocolToUpdate) {
 		System.out.println("/removeProtocol");
 		System.out.println(protocolToUpdate);
 		int updateProtocol = cuwyCpoeHolDb2.updateProtocolOrder(protocolToUpdate);
-		List<Map<String, Object>> patient1sList = protocol1sList();
-		return patient1sList;
+		List<Map<String, Object>> protocol1sList = protocol1sList();
+		return protocol1sList;
 	}
 	@RequestMapping(value = "/protocol1sList", method = RequestMethod.GET)
 	public @ResponseBody List<Map<String, Object>> protocol1sList() {
 		System.out.println("/protocol1sList");
-		List<Map<String, Object>> patient1sList = cuwyCpoeHolDb2.protocol1sList();
-		writeToJsDbFile("var protocolOrder1sList = ", patient1sList, protocolOrder1sListJsFileName);
-		return patient1sList;
+		List<Map<String, Object>> protocol1sList = cuwyCpoeHolDb2.protocol1sList();
+		writeToJsDbFile("var protocolOrder1sList = ", protocol1sList, protocolOrder1sListJsFileName);
+		return protocol1sList;
 	}
-	
+	//------------------protocol-------------------END---
+
+	//------------------prescribe----------------------
 	@RequestMapping(value = "/saveNewPrescribe", method = RequestMethod.POST)
 	public @ResponseBody List<Map<String, Object>> saveNewPrescribe(
 			@RequestBody Map<String, Object> newPrescribe) {
@@ -95,6 +97,11 @@ public class GreetingController {
 		System.out.println("/updatePrescribe");
 		System.out.println(prescribeToUpdate);
 		int updateProtocol = cuwyCpoeHolDb2.updatePrescribeOrder(prescribeToUpdate);
+		Integer prescribeId = (Integer) prescribeToUpdate.get("PRESCRIBE_ID");
+		Map<String, Object> readPrescribes = readPrescribes(prescribeId);
+		String prescribeName = (String) prescribeToUpdate.get("PRESCRIBE_NAME");
+		readPrescribes.put("PRESCRIBE_NAME", prescribeName);
+		writeToJsonDbFile(readPrescribes, getPrescribeDbJsonName(prescribeId));
 		List<Map<String, Object>> prescribe1sList = prescribe1sList();
 		return prescribe1sList;
 	}
@@ -105,7 +112,46 @@ public class GreetingController {
 		writeToJsDbFile("var prescribeOrder1sList = ", prescribe1sList, prescribeOrder1sListJsFileName);
 		return prescribe1sList;
 	}
+	@RequestMapping(value = "/dev/prescribes/save", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> savePrescribes(
+			@RequestBody HashMap<String, Object> prescribes) {
+		System.out.println("/dev/prescribes/save");
+		System.out.println(prescribes);
+		writeToJsonDbFile(prescribes, fileNamePrescribes);
+		return prescribes;
+	}
+	@RequestMapping(value = "/save/prescribes", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> savePrescribes(
+			@RequestBody Map<String, Object> prescribes){
+		Integer prescribeId = (Integer) prescribes.get("PRESCRIBE_ID");
+		writeToJsonDbFile(prescribes, getPrescribeDbJsonName(prescribeId));
+		cuwyCpoeHolDb2.updatePrescribeOrder(prescribes);
+		prescribe1sList();
+		return prescribes;
+	}
+	@RequestMapping(value="/read/prescribe_{prescribeId}", method=RequestMethod.GET)
+	public @ResponseBody Map<String, Object> readPrescribes(@PathVariable Integer prescribeId) {
+		String fileNameWithPathAdd = getPrescribeDbJsonName(prescribeId);
+		Map<String, Object> readJsonDbFile2map = readJsonDbFile2map(fileNameWithPathAdd);
+		if(null == readJsonDbFile2map){
+			readJsonDbFile2map = cuwyCpoeHolDb2.readPrescribe(prescribeId);
+			writeToJsonDbFile(readJsonDbFile2map, fileNameWithPathAdd);
+		}
+		return readJsonDbFile2map;
+	}
+	@RequestMapping(value = "/dev/prescribes/read", method = RequestMethod.GET)
+	public @ResponseBody Map<String, Object> readPrescribes(
+			@RequestBody Map<String, Object> prescribeRead) {
+		System.out.println(prescribeRead);
+		Map<String, Object> readJsonDbFile2map = readJsonDbFile2map(fileNamePrescribes);
+		Object prescribeName = readJsonDbFile2map.get("prescribes_name");
+		System.out.println(prescribeName);
+		System.out.println(readJsonDbFile2map.get("tasks"));
+		return readJsonDbFile2map;
+	}
+	//------------------prescribe-------------------END---
 
+	//------------------patient----------------------
 	@RequestMapping(value = "/saveNewPatient", method = RequestMethod.POST)
 	public @ResponseBody List<Map<String, Object>> saveNewPatient(@RequestBody Map<String, Object> newPatient) {
 		System.out.println("/saveNewPatient");
@@ -139,7 +185,28 @@ public class GreetingController {
 		writeToJsDbFile("var patient1sList = ", patient1sList, patient1sListJsFileName);
 		return patient1sList;
 	}
+	@RequestMapping(value="/read/patient_{patientId}", method=RequestMethod.GET)
+	public @ResponseBody Map<String, Object> readPatient(@PathVariable Integer patientId) {
+		System.out.println("/read/patient_"+patientId);
+		String fileNameWithPathAdd = getPatientDbJsonName(patientId);
+		Map<String, Object> readJsonDbFile2map = readJsonDbFile2map(fileNameWithPathAdd);
+		if(null == readJsonDbFile2map){
+			readJsonDbFile2map = cuwyCpoeHolDb2.readPatient(patientId);
+			writeToJsonDbFile(readJsonDbFile2map, fileNameWithPathAdd);
+		}
+		return readJsonDbFile2map;
+	}
+	@RequestMapping(value = "/save/patient", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> savePatient(
+			@RequestBody Map<String, Object> patient){
+		Integer patientId = (Integer) patient.get("PATIENT_ID");
+		String fileNameWithPathAdd = getPatientDbJsonName(patientId);
+		writeToJsonDbFile(patient, fileNameWithPathAdd);
+		return patient;
+	}
+	//------------------patient---------------END-------
 
+	//------------------drug----------------------
 	@RequestMapping(value = "/saveNewDrug", method = RequestMethod.POST)
 	public @ResponseBody List<Map<String, Object>> saveNewDrug(@RequestBody Map<String, Object> newDrug) {
 		System.out.println("/saveNewDrug");
@@ -173,7 +240,15 @@ public class GreetingController {
 		writeToJsDbFile("var drug1sList = ", drug1sList, drug1sListJsFileName);
 		return drug1sList;
 	}
+	//------------------drug----------------END------
 
+	private String getPatientDbJsonName(Integer patientId) {
+		return "patient/patient_"+ patientId+ ".json";
+	}
+	private String getPrescribeDbJsonName(Integer prescribeId) {
+		return "prescribe/prescribe_"+ prescribeId+ ".json";
+	}
+	String fileNamePrescribes = "prescribes.json";
 	private String prescribeOrder1sListJsFileName = "prescribeOrder1sList.json.js";
 	private String protocolOrder1sListJsFileName = "protocolOrder1sList.json.js";
 	private String patient1sListJsFileName = "patient1sList.json.js";
@@ -246,16 +321,6 @@ public class GreetingController {
 				String.format(template, name));
 	}
 	//---------prescribes-----------
-	String fileNamePrescribes = "prescribes.json";
-	@RequestMapping(value = "/dev/prescribes/save", method = RequestMethod.POST)
-	public @ResponseBody Map<String, Object> saveDevPrescribes(
-			@RequestBody HashMap<String, Object> prescribes) {
-		System.out.println("/dev/prescribes/save");
-		System.out.println(prescribes);
-		writeToJsonDbFile(prescribes, fileNamePrescribes);
-		return prescribes;
-	}
-
 	@RequestMapping(value = "/session/paste", method = RequestMethod.GET)
 	public @ResponseBody Map<String, Object> sessionPaste(HttpSession session){
 		System.out.println(session);
@@ -272,38 +337,8 @@ public class GreetingController {
 		return copyObj;
 	}
 
-	@RequestMapping(value = "/save/prescribes", method = RequestMethod.POST)
-	public @ResponseBody Map<String, Object> savePrescribes(
-			@RequestBody Map<String, Object> prescribes){
-		Integer prescribeId = (Integer) prescribes.get("PRESCRIBE_ID");
-		String fileNameWithPathAdd = getPrescribeDbJsonName(prescribeId);
-		writeToJsonDbFile(prescribes, fileNameWithPathAdd);
-		return prescribes;
-	}
-	@RequestMapping(value="/read/prescribe_{prescribeId}", method=RequestMethod.GET)
-	public @ResponseBody Map<String, Object> readDevPrescribes(@PathVariable Integer prescribeId) {
-		String fileNameWithPathAdd = getPrescribeDbJsonName(prescribeId);
-		Map<String, Object> readJsonDbFile2map = readJsonDbFile2map(fileNameWithPathAdd);
-		if(null == readJsonDbFile2map){
-			readJsonDbFile2map = cuwyCpoeHolDb2.readPrescribe(prescribeId);
-			writeToJsonDbFile(readJsonDbFile2map, fileNameWithPathAdd);
-		}
-		return readJsonDbFile2map;
-	}
-	private String getPrescribeDbJsonName(Integer prescribeId) {
-		return "prescribe/prescribe_"+ prescribeId+ ".json";
-	}
 
-	@RequestMapping(value = "/dev/prescribes/read", method = RequestMethod.GET)
-	public @ResponseBody Map<String, Object> readDevPrescribes(
-			@RequestBody Map<String, Object> prescribeRead) {
-		System.out.println(prescribeRead);
-		Map<String, Object> readJsonDbFile2map = readJsonDbFile2map(fileNamePrescribes);
-		Object prescribeName = readJsonDbFile2map.get("prescribes_name");
-		System.out.println(prescribeName);
-		System.out.println(readJsonDbFile2map.get("tasks"));
-		return readJsonDbFile2map;
-	}
+	//------------------development----------------------
 	@RequestMapping(value = "/dev/prescribes/dummy", method = RequestMethod.GET)
 	public @ResponseBody Map<String, Object> devPrescribes() {
 		HashMap<String, Object> prescribes = new HashMap<String, Object>();
@@ -319,6 +354,6 @@ public class GreetingController {
 		writeToJsonDbFile(prescribes, fileNamePrescribes);
 		return prescribes;
 	}
-	//---------prescribes-------END----
+	//------------------development----------------END----
 
 }
