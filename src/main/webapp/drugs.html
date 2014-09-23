@@ -35,7 +35,9 @@
 					<tr>
 					<td>{{drug.DRUG_ID}}</td>
 					<td ng-context-menu="menuDrugList" ng-show="!drug.drugUpdateOpen">
+						<a href="drug.html?id={{drug.DRUG_ID}}">
 						{{drug.DRUG_NAME}}
+						</a>
 					</td>
 					<td ng-context-menu="menuDrugList" ng-show="drug.drugUpdateOpen">
 						<div class="row">
@@ -75,16 +77,15 @@
 	<script src="/js2/cuwy1.directives.js"></script>
 	<script src="/db/drug1sList.json.js"></script>
 	<script type="text/javascript">
-	//var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
 	cuwyApp.controller('drugsCtrl', [ '$scope', '$http', function ($scope, $http) {
 		$scope.siteMap = config.siteMap.siteMaps[1];
 
-		$scope.title = "Ліки";
 		console.log("drugsCtrl");
 		$scope.drug1sList = drug1sList;
 
 		$scope.saveNewDrug = function(){
 			console.log("saveNewDrug");
+			console.log($scope.seekDrug);
 			postDrug('/saveNewDrug', {"DRUG_NAME":$scope.seekDrug});
 		}
 

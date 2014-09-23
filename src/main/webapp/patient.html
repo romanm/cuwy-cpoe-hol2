@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html ng-app="cuwyApp" ng-controller="patientCtrl">
+<head>
+	<meta charset="utf-8" />
+	<title>{{siteMap.title}}</title>
+	<link href="/css/bootstrap.css" rel="stylesheet"/>
+	<link href="/css2/cuwy1-cpoe-hol1.css" rel="stylesheet"/>
+</head>
+<body>
+<a href="/home.html"><span class="glyphicon glyphicon-home"></span></a>
+/ <span class="h1">{{siteMap.name}}
+<span>{{patient.PATIENT_NAME}}</span>
+</span>
+<span class="navbar-right">
+	<ul class="nav nav-pills" title="{{numberOfChange}} незбережених змін">
+		<li ng-class="{'disabled': numberOfChange == 0}">
+			<a ng-click="savePatient()" href="#">
+				<span class="glyphicon glyphicon-floppy-disk"></span>
+				{{numberOfChange}}
+				</a>
+		</li>
+	</ul>
+</span>
+<hr/>
+<div class="container">
+	<div class="row">
+		<div class="col-xs-12">
+			<div data-ng-repeat="prescribeHistory in patient.prescribesHistory">
+				<span title="{{prescribeHistory.date | date:'HH:mm'}}">
+				{{prescribeHistory.date | date:'dd-MM-yyyy '}}
+				</span>
+				<table>
+					<thead>
+						<tr>
+							<th>N</th><th>Призначеня</th>
+							<th data-ng-repeat="dayHour in dayHours">
+								|
+								{{$index>9?'':'0'}}{{dayHour}}
+							</th>
+							<th>|</th>
+						</tr>
+					</thead>
+					<tbody data-ng-repeat="taskInDay in tasksInDay" ng-init="taskInDayIndex = $index">
+						<tr>
+							<td>
+								<u data-ng-show="prescribes.tasks.length == $index + 1">{{$index + 1}}</u>
+								<span data-ng-show="prescribes.tasks.length != $index + 1">{{$index + 1 }}</span>
+							</td>
+							<td data-ng-click="taskInDay.isCollapsed = !taskInDay.isCollapsed"
+							ng-context-menu="menuTask"
+							title="{{taskInDay.isCollapsed}}"
+							>
+							{{prescribes.tasks[$index].DRUG_NAME == null ? ".":prescribes.tasks[$index].DRUG_NAME}}
+							</td>
+							<td data-ng-repeat="dayHour in dayHours"> . </td>
+							<td>.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<hr/>
+<a href="patients.html">Список пацієнтів</a>
+
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js/angular-sanitize.min.js"></script>
+	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script src='/js/textAngular-sanitize.min.js'></script>
+	<script src='/js/textAngular.min.js'></script>
+	<script src="/js2/cuwy1.config.js"></script>
+	<script src="/js2/cuwy1.directives.js"></script>
+	<script src="/db/patient1sList.json.js"></script>
+	<script type="text/javascript">
+	cuwyApp.controller('patientCtrl', [ '$scope', '$http', function ($scope, $http) {
+		console.log("patientCtrl");
+		$scope.siteMap = config.siteMap.siteMaps[4];
+		$scope.parameters = parameters;
+		$scope.dayHours = [];
+		for(var i=0;i<24;i++) $scope.dayHours.push(i);
+		$scope.tasksInDay = [];
+		for(var ii=0;ii<12;ii++){
+			$scope.tasksInDay.push({i:ii,isCollapsed:false});
+		}
+
+
+		$http({
+			method : 'GET',
+			url : '/read/patient_'+$scope.parameters.id
+		}).success(function(data, status, headers, config) {
+			$scope.patient = data;
+			if(null == $scope.patient.prescribesHistory){
+				$scope.patient.prescribesHistory = [];
+				var today = new Date();
+				var prescrebeHistory = {date:today,prescribe:{}}
+				$scope.patient.prescribesHistory.push(prescrebeHistory);
+				console.log($scope.patient);
+			}
+		}).error(function(data, status, headers, config) {
+		});
+
+
+		$scope.savePatient = function(){
+			console.log("--------devPost-----------");
+			$http({
+				method : 'POST',
+				data : $scope.patient,
+				url : "/save/patient"
+			}).success(function(data, status, headers, config){
+				console.log(data);
+				$scope.prescribes = data;
+			}).error(function(data, status, headers, config) {
+				$scope.error = data;
+			});
+		}
+
+		
+	}]);
+	</script>
+</body>
+</html>

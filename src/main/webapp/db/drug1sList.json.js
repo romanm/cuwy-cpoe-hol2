@@ -19,4 +19,7 @@ var drug1sList = [ {
 }, {
   "DRUG_ID" : 21,
   "DRUG_NAME" : "Дімедрол"
+}, {
+  "DRUG_ID" : 33,
+  "DRUG_NAME" : "Стерофундин"
 } ]

@@ -240,6 +240,23 @@ public class GreetingController {
 		writeToJsDbFile("var drug1sList = ", drug1sList, drug1sListJsFileName);
 		return drug1sList;
 	}
+	@RequestMapping(value = "/save/drug", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> saveDrug(
+			@RequestBody Map<String, Object> drug){
+		Integer prescribeId = (Integer) drug.get("DRUG_ID");
+		writeToJsonDbFile(drug, getDrugDbJsonName(prescribeId));
+		return drug;
+	}
+	@RequestMapping(value="/read/drug_{drugId}", method=RequestMethod.GET)
+	public @ResponseBody Map<String, Object> readDrug(@PathVariable Integer drugId) {
+		String fileNameWithPathAdd = getDrugDbJsonName(drugId);
+		Map<String, Object> readJsonDbFile2map = readJsonDbFile2map(fileNameWithPathAdd);
+		if(null == readJsonDbFile2map){
+			readJsonDbFile2map = cuwyCpoeHolDb2.readDrug(drugId);
+			writeToJsonDbFile(readJsonDbFile2map, fileNameWithPathAdd);
+		}
+		return readJsonDbFile2map;
+	}
 	//------------------drug----------------END------
 
 	private String getPatientDbJsonName(Integer patientId) {
@@ -247,6 +264,9 @@ public class GreetingController {
 	}
 	private String getPrescribeDbJsonName(Integer prescribeId) {
 		return "prescribe/prescribe_"+ prescribeId+ ".json";
+	}
+	private String getDrugDbJsonName(Integer drugId) {
+		return "drug/drug_"+ drugId+ ".json";
 	}
 	String fileNamePrescribes = "prescribes.json";
 	private String prescribeOrder1sListJsFileName = "prescribeOrder1sList.json.js";

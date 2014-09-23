@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html ng-app="cuwyApp" ng-controller="drugCtrl">
+<head>
+	<meta charset="utf-8" />
+	<title>{{siteMap.title}}</title>
+	<link href="/css/bootstrap.css" rel="stylesheet"/>
+	<link href="/css2/cuwy1-cpoe-hol1.css" rel="stylesheet"/>
+</head>
+<body>
+<a href="/home.html"><span class="glyphicon glyphicon-home"></span></a>
+/ <span class="h1">{{siteMap.name}}</span>
+<span class="navbar-right">
+	<ul class="nav nav-pills" title="{{numberOfChange}} незбережених змін">
+		<li ng-class="{'disabled': numberOfChange == 0}">
+			<a ng-click="saveDrug()" href="#">
+				<span class="glyphicon glyphicon-floppy-disk"></span>
+				{{numberOfChange}}
+				</a>
+		</li>
+	</ul>
+</span>
+<hr/>
+<div class="container">
+	<div class="row">
+		<div class="col-xs-4">
+			<span class="close navbar-right"><small>Назви</small></span>
+			<h3><u>{{drug.DRUG_NAME}}</u></h3>
+		</div>
+		<div class="col-xs-4">
+			<span class="close navbar-right"><small>Дози</small></span>
+			<div>
+				<div data-ng-repeat="dose in drug.doses">
+					{{dose.DOSE_NUMBER}}
+					{{dose.DOSE_UNIT}}
+					<!-- 
+					{{dose}}
+					 -->
+				</div>
+			</div>
+			<table>
+				<tr>
+					<th title="Кількість">--</th>
+					<th title="Одиниці виміру">мл|таб.</th>
+					<th title="Концентрація">--</th>
+					<th title="Одиниці виміру концентрації">%|мг/мл</th>
+				</tr>
+				<tr>
+					<td>
+						<input ng-model="doseToAdd.DOSE_NUMBER" type="text" class="form-control" />
+					</td>
+					<td>
+						<input ng-model="doseToAdd.DOSE_UNIT" type="text" class="form-control" />
+					</td>
+					<td>
+						<input ng-model="doseToAdd.DOSECONCENTRATON_NUMBER" type="text" class="form-control" />
+					</td>
+					<td>
+						<input ng-model="doseToAdd.DOSECONCENTRATON_UNIT" type="text" class="form-control" />
+					</td>
+					<td>
+						&nbsp;
+					</td>
+					<td>
+						<a data-ng-click="addDose()">
+							<span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="col-xs-4">
+			<span class="close navbar-right"><small>Час</small></span>
+		</div>
+	</div>
+</div>
+
+<hr/>
+<a href="drugs.html">Ліки</a>
+
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js/angular-sanitize.min.js"></script>
+	<script src="/js/ui-bootstrap-tpls-0.11.0.js"></script>
+	<script src='/js/textAngular-sanitize.min.js'></script>
+	<script src='/js/textAngular.min.js'></script>
+	<script src="/js2/cuwy1.config.js"></script>
+	<script src="/js2/cuwy1.directives.js"></script>
+	<script src="/db/drug1sList.json.js"></script>
+	<script type="text/javascript">
+	//var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
+	cuwyApp.controller('drugCtrl', [ '$scope', '$http', function ($scope, $http) {
+		console.log("drugCtrl");
+		$scope.parameters = parameters;
+		$scope.doseToAdd = {};
+		$scope.numberOfChange = 0;
+
+		$scope.siteMap = config.siteMap.siteMaps[5];
+		$http({
+			method : 'GET',
+			url : '/read/drug_'+$scope.parameters.id
+		}).success(function(data, status, headers, config) {
+			console.log(data);
+			$scope.drug = data;
+			if(null == $scope.drug.doses)
+				$scope.drug.doses = [];
+			if(null == $scope.drug.localIdSequence)
+				$scope.drug.localIdSequence = 1;
+		}).error(function(data, status, headers, config) {
+		});
+
+		$scope.addDose = function(){
+			$scope.doseToAdd.DOSE_ID = $scope.drug.localIdSequence;
+			$scope.drug.doses.push($scope.doseToAdd);
+			$scope.doseToAdd = {};
+			$scope.drug.localIdSequence++;
+			$scope.numberOfChange++;
+		};
+
+		$scope.saveDrug = function(){
+			console.log("--------devPost-----------");
+			$http({
+				method : 'POST',
+				data : $scope.drug,
+				url : "/save/drug"
+			}).success(function(data, status, headers, config){
+				console.log(data);
+				$scope.prescribes = data;
+			$scope.numberOfChange = 0;
+			}).error(function(data, status, headers, config) {
+				$scope.error = data;
+			});
+		}
+
+	}]);
+	</script>
+
+
+</body>
+</html>

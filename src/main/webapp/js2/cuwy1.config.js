@@ -8,7 +8,8 @@ var config = {
 			{title:"Редактор: Лист призначень реанімація"
 				,name:"Редактор: Лист призначень 24 години на добу - реанімація ", url:"lp24h.html"},
 			{title:"ХОЛ::Протоколи",name:"Протоколи лікування",url:"protocols.html"},
-			{title:"Пацієнт",name:"Пацієнт - ",url:"patient.html"}
+			{title:"IX::Пацієнт",name:"IX::Пацієнт",url:"patient.html"},
+			{title:"Ліка додаток",name:"Ліка додаток",url:"drug.html"}
 		]
 	}
 };

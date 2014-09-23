@@ -59,19 +59,34 @@
 				<th>|</th>
 			</tr>
 		</thead>
-		<tbody data-ng-repeat="taskInDay in tasksInDay" ng-init="taskInDayIndex = $index">
+		<!-- 
+				data-ng-init="currentDrug = prescribes.tasks[$index]"
+		 -->
+		<tbody data-ng-repeat="taskInDay in tasksInDay"
+				ng-init="taskInDayIndex = $index"
+		>
 			<tr>
 				<td>
 					<u data-ng-show="prescribes.tasks.length == $index + 1">{{$index + 1}}</u>
 					<span data-ng-show="prescribes.tasks.length != $index + 1">{{$index + 1 }}</span>
 				</td>
-				<td data-ng-click="taskInDay.isCollapsed = !taskInDay.isCollapsed"
+				<td data-ng-click="openPrescribeDrugDialog(taskInDay, $index)"
 				data-ng-context-menu="menuTask"
 				title="{{taskInDay.isCollapsed}}"
 				>
 				{{prescribes.tasks[$index].DRUG_NAME == null ? "-":prescribes.tasks[$index].DRUG_NAME}}
+					<span>
+						{{prescribes.tasks[$index].dose.DOSE_NUMBER}}
+						{{prescribes.tasks[$index].dose.DOSE_UNIT}}
+					</span>
 				</td>
-				<td data-ng-repeat="dayHour in dayHours"> . </td>
+				<td data-ng-repeat="dayHour in dayHours"
+				 data-ng-click="useHour(taskInDay, taskInDayIndex, $index)"
+				> . 
+					<span 
+					data-ng-show="'-' == prescribes.tasks[taskInDayIndex].times.hours[$index]"
+					class="glyphicon glyphicon-minus"></span>
+				</td>
 				<td>.</td>
 			</tr>
 			<tr data-ng-if="taskInDay.isCollapsed">
@@ -79,36 +94,71 @@
 				<td class="well" colspan="18">
 					<span class="close navbar-right">
 					<small>
-					ліка | доза | час |
+					<span data-ng-click="taskInDay.dialogTab='drug'">
+						<span data-ng-show="taskInDay.dialogTab != 'drug'">ліка</span>
+						<u data-ng-show="taskInDay.dialogTab == 'drug'">ліка</u>
+					</span>
+					|
+					<span data-ng-click="taskInDay.dialogTab='dose'">
+						<span data-ng-show="taskInDay.dialogTab != 'dose'">доза</span>
+						<u data-ng-show="taskInDay.dialogTab == 'dose'">доза</u>
+					</span>
+					|
+					<span data-ng-click="taskInDay.dialogTab='times'">
+						<span data-ng-show="taskInDay.dialogTab != 'times'">час</span>
+						<u data-ng-show="taskInDay.dialogTab == 'times'">час</u>
+					</span>
+					|
 					<a data-ng-click="taskInDay.isCollapsed = false">
 						<span class="glyphicon glyphicon-share-alt"></span>
 					</a>
 					</small>
 					</span>
-				<div class="row-fluid" title="{{taskInDay}}">
-				ЛІКА
-				{{taskInDayIndex + 1}}
-				</div>
-
-<form class="navbar-form navbar-left" role="search">
-	<div class="form-group">
-		<div class="input-group">
-			<span class="input-group-addon">Пошук:</span>
-			<input type="text" class="form-control" ng-model="seekDrug" auto-focus="" placeholder="Медикамент пошук / запис">
-		</div>
-	</div>
-	<button type="submit" ng-click="saveNewDrug()" class="btn btn-default">
-		<span class="glyphicon glyphicon-floppy-disk"></span>
-	</button>
-	<div>
-	<div data-ng-repeat="drug in drug1sList | filter: seekDrug | limitTo : 12">
-		<a ng-click="drugToTask(drug, taskInDay)">
-		{{drug.DRUG_NAME}}
-		{{$index}}
-		</a>
-	</div>
-	</div>
-</form>
+			<div class="row-fluid" title="{{taskInDay}}">
+			ЛІКА
+			{{$index + 1}}
+			{{prescribes.tasks[$index].DRUG_NAME}}
+			</div>
+			<div data-ng-show="taskInDay.dialogTab=='drug'">
+				<form class="navbar-form navbar-left" role="search">
+					<div class="form-group">
+						<div class="input-group">
+							<span class="input-group-addon">Пошук:</span>
+							<input type="text" class="form-control" data-ng-model="seekDrug" auto-focus="" placeholder="Медикамент пошук / запис">
+						</div>
+					</div>
+					<button  data-ng-click="saveNewDrug(seekDrug)" class="btn btn-default">
+						<span class="glyphicon glyphicon-floppy-disk"></span>
+					</button>
+					<div>
+					<div data-ng-repeat="drug in drug1sList | filter: seekDrug | limitTo : 12">
+						<a ng-click="drugToTask(drug, taskInDay)">
+						{{drug.DRUG_NAME}}
+						{{$index}}
+						</a>
+					</div>
+					</div>
+				</form>
+			</div>
+			<div data-ng-show="taskInDay.dialogTab=='dose'">
+				<span data-ng-repeat="dose in drugDocument.doses" data-ng-click="addDose(dose)">
+					{{dose.DOSE_NUMBER}}
+					{{dose.DOSE_UNIT}}
+					<!-- 
+					{{dose}}
+					 -->
+					 |
+				</span>
+				<hr/>
+			</div>
+				<span class="close navbar-right">
+					<small>
+					Додаток:
+					<a href="/drug.html?id={{prescribes.tasks[$index].DRUG_ID}}">
+					{{prescribes.tasks[$index].DRUG_NAME}}
+					</a>
+					</small>
+				</span>
 				</td>
 			</tr>
 		</tbody>
@@ -140,16 +190,26 @@
 			$scope.parameters.id = 0;
 		console.log($scope.parameters);
 
+		getDayHours = function(){
+			var dayHours = [];
+			for(var i=0;i<24;i++) dayHours.push(i);
+			return dayHours;
+		}
+
+		getDayHoursEmpty = function(){
+			var dayHours = [];
+			for(var i=0;i<24;i++) dayHours.push(null);
+			return dayHours;
+		}
+
 		$scope.siteMap = config.siteMap.siteMaps[2];
-		var dayHours = [];
-		for(var i=0;i<24;i++) dayHours.push(i);
-		$scope.dayHours = dayHours;
+		$scope.dayHours = getDayHours();
 		var tasksInDay = [];
 		for(var ii=0;ii<12;ii++){
 			tasksInDay.push({i:ii,isCollapsed:false});
 		}
 		$scope.tasksInDay = tasksInDay;
-		
+
 		$http({
 			method : 'GET',
 			url : '/read/prescribe_'+$scope.parameters.id
@@ -161,6 +221,58 @@
 		}).error(function(data, status, headers, config) {
 		});
 
+		$scope.useHour = function(taskInDay, taskInDayIndex, $index){
+			if(taskInDay.isCollapsed){
+				var hour = $index;
+				console.log(taskInDay);
+				console.log(taskInDayIndex);
+				console.log($index);
+				var editedDrug = $scope.prescribes.tasks[taskInDay.i];
+				if(!editedDrug.times){
+					editedDrug.times = {};
+					editedDrug.times.hours = getDayHoursEmpty();
+				}
+				if(!editedDrug.times.hours[$index]){
+					editedDrug.times.hours[$index] = "-";
+				}else{
+					editedDrug.times.hours[$index] = null;
+				}
+				console.log(editedDrug);
+				$scope.numberOfChange++;
+			}
+		}
+
+		$scope.openPrescribeDrugDialog = function(taskInDay, $index){
+			console.log("openPrescribeDrugDialog");
+			var oldCollapsed = taskInDay.isCollapsed;
+			$($scope.tasksInDay).each(function () {
+				this.isCollapsed = false;
+			} );
+			taskInDay.isCollapsed = !oldCollapsed;
+			$scope.editedPrescribeDrug =  $scope.prescribes.tasks[$index];
+			console.log($scope.editedPrescribeDrug);
+			if(null == $scope.editedPrescribeDrug){
+				taskInDay.dialogTab = "drug";
+			}else{
+				taskInDay.dialogTab = "dose";
+			}
+
+			$http({
+				method : 'GET',
+				url : '/read/drug_'+$scope.editedPrescribeDrug.DRUG_ID
+			}).success(function(data, status, headers, config) {
+				console.log(data);
+				$scope.drugDocument = data;
+			}).error(function(data, status, headers, config) {
+			});
+			
+		}
+		$scope.addDose = function(doseToAdd){
+			console.log(doseToAdd);
+			console.log($scope.editedPrescribeDrug);
+			$scope.editedPrescribeDrug.dose = doseToAdd;
+			$scope.numberOfChange++;
+		}
 		$scope.drugToTask = function(drug, taskInDay){
 			console.log("drugToTask");
 			console.log(drug);
@@ -177,6 +289,8 @@
 				$scope.numberOfChange++;
 			}else{
 				console.log("rewrite drug? watch with times? ");
+				$scope.prescribes.tasks[taskInDay.i] = drug;
+				$scope.numberOfChange++;
 			}
 			console.log($scope.prescribes.tasks);
 		}
@@ -195,6 +309,22 @@
 				$scope.error = data;
 			});
 		}
+
+		$scope.saveNewDrug = function(seekDrug){
+			console.log("saveNewDrug");
+			console.log(seekDrug);
+			$http({
+				method : 'POST',
+				data : {"DRUG_NAME":seekDrug},
+				url : '/saveNewDrug'
+			}).success(function(data, status, headers, config){
+				$scope.drug1sList = data;
+				console.log(data);
+			}).error(function(data, status, headers, config) {
+				$scope.error = data;
+			});
+		}
+
 
 		moveTo = function(arrayToSort, indexFrom, indexTo){
 			var el = arrayToSort.splice(indexFrom, 1);
@@ -261,8 +391,8 @@
 			['Copy', function ($itemScope) { 
 				console.log('Copy');
 				console.log($itemScope);
-				console.log($itemScope.taskInDayIndex);
-				var drug = $itemScope.prescribes.tasks[$itemScope.taskInDayIndex];
+				console.log($itemScope.$index);
+				var drug = $itemScope.prescribes.tasks[$itemScope.$index];
 				console.log(drug);
 				contextMenuCopy(drug); 
 			}],

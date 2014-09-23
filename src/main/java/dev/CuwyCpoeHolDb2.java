@@ -51,6 +51,13 @@ public class CuwyCpoeHolDb2 {
 		Map<String, Object> map = patient1sList.get(0);
 		return map;
 	}
+	public Map<String, Object> readDrug(Integer id) {
+		String sql = "SELECT * FROM drug1 WHERE drug_id = ?";
+		System.out.println("\n"+sql.replaceFirst("\\?", ""+id));
+		List<Map<String, Object>> prescribe1sList = jdbcTemplate.queryForList(sql, id);
+		Map<String, Object> map = prescribe1sList.get(0);
+		return map;
+	}
 	public Map<String, Object> readPrescribe(Integer id) {
 		String sql = "SELECT * FROM prescribe1 WHERE prescribe_id = ?";
 		System.out.println("\n"+sql.replaceFirst("\\?", ""+id));
