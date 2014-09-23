@@ -54,7 +54,7 @@
 				<th data-ng-context-menu="menuTasksAll" >Призначеня</th>
 				<th data-ng-repeat="dayHour in dayHours">
 					|
-					{{$index>9?'':'0'}}{{dayHour}}
+					{{getLp24hourStr(dayHour)}}
 				</th>
 				<th>|</th>
 			</tr>
@@ -84,14 +84,14 @@
 				 data-ng-click="useHour(taskInDay, taskInDayIndex, $index)"
 				> . 
 					<span 
-					data-ng-show="'-' == prescribes.tasks[taskInDayIndex].times.hours[$index]"
+					data-ng-show="isMinus(taskInDayIndex, $index)"
 					class="glyphicon glyphicon-minus"></span>
 				</td>
 				<td>.</td>
 			</tr>
 			<tr data-ng-if="taskInDay.isCollapsed">
 				<td />
-				<td class="well" colspan="18">
+				<td class="well" colspan="25">
 					<span class="close navbar-right">
 					<small>
 					<span data-ng-click="taskInDay.dialogTab='drug'">
@@ -114,42 +114,64 @@
 					</a>
 					</small>
 					</span>
-			<div class="row-fluid" title="{{taskInDay}}">
+			<div class="row-fluid" title="{{taskInDay}}"
+					data-ng-init="drugForEdit = prescribes.tasks[$index]"
+			>
 			ЛІКА
 			{{$index + 1}}
 			{{prescribes.tasks[$index].DRUG_NAME}}
-			</div>
-			<div data-ng-show="taskInDay.dialogTab=='drug'">
-				<form class="navbar-form navbar-left" role="search">
-					<div class="form-group">
-						<div class="input-group">
-							<span class="input-group-addon">Пошук:</span>
-							<input type="text" class="form-control" data-ng-model="seekDrug" auto-focus="" placeholder="Медикамент пошук / запис">
+				<div data-ng-show="taskInDay.dialogTab=='drug'">
+					<form class="navbar-form navbar-left" role="search">
+						<div class="form-group">
+							<div class="input-group">
+								<span class="input-group-addon">Пошук:</span>
+								<input type="text" class="form-control" data-ng-model="seekDrug" auto-focus="" placeholder="Медикамент пошук / запис">
+							</div>
 						</div>
-					</div>
-					<button  data-ng-click="saveNewDrug(seekDrug)" class="btn btn-default">
-						<span class="glyphicon glyphicon-floppy-disk"></span>
-					</button>
-					<div>
-					<div data-ng-repeat="drug in drug1sList | filter: seekDrug | limitTo : 12">
-						<a ng-click="drugToTask(drug, taskInDay)">
-						{{drug.DRUG_NAME}}
-						{{$index}}
-						</a>
-					</div>
-					</div>
-				</form>
-			</div>
-			<div data-ng-show="taskInDay.dialogTab=='dose'">
-				<span data-ng-repeat="dose in drugDocument.doses" data-ng-click="addDose(dose)">
-					{{dose.DOSE_NUMBER}}
-					{{dose.DOSE_UNIT}}
-					<!-- 
-					{{dose}}
-					 -->
-					 |
-				</span>
-				<hr/>
+						<button  data-ng-click="saveNewDrug(seekDrug)" class="btn btn-default">
+							<span class="glyphicon glyphicon-floppy-disk"></span>
+						</button>
+						<div>
+						<div data-ng-repeat="drug in drug1sList | filter: seekDrug | limitTo : 12">
+							<a ng-click="drugToTask(drug, taskInDay)">
+							{{drug.DRUG_NAME}}
+							{{$index}}
+							</a>
+						</div>
+						</div>
+					</form>
+				</div>
+				<div data-ng-show="taskInDay.dialogTab=='dose'">
+					<span data-ng-repeat="dose in drugDocument.doses" data-ng-click="addDose(dose)">
+						{{dose.DOSE_NUMBER}}
+						{{dose.DOSE_UNIT}}
+						 |
+					</span>
+					<hr/>
+				</div>
+				<div data-ng-show="taskInDay.dialogTab=='times'"
+				>
+				..
+				<table>
+					<tr>
+						<td>
+						<span class="glyphicon glyphicon-arrow-left"></span>
+						||
+						</td>
+						<td data-ng-repeat="hour2prescribe in getHoures2prescribe(drugForEdit)">
+						<span data-ng-click="prescribeHourLeft(drugForEdit,hour2prescribe)" class="glyphicon glyphicon-arrow-left"></span>
+							{{hour2prescribe}}
+						<span data-ng-click="prescribeHourRight(drugForEdit, hour2prescribe)"  class="glyphicon glyphicon-arrow-right"></span>
+						|
+						</td>
+						<td>
+						|
+						<span class="glyphicon glyphicon-arrow-right"></span>
+						</td>
+					</tr>
+				</table>
+				..
+				</div>
 			</div>
 				<span class="close navbar-right">
 					<small>
@@ -202,7 +224,9 @@
 			return dayHours;
 		}
 
+		$scope.config = config;
 		$scope.siteMap = config.siteMap.siteMaps[2];
+		console.log($scope.config.startHour24lp);
 		$scope.dayHours = getDayHours();
 		var tasksInDay = [];
 		for(var ii=0;ii<12;ii++){
@@ -221,24 +245,58 @@
 		}).error(function(data, status, headers, config) {
 		});
 
+		$scope.getLp24hourStr = function(dayHour){
+			var lp24hour = getLp24hour(dayHour);
+			return (lp24hour>9?'':'0')+lp24hour;
+		}
+		getLp24hour= function(dayHour){
+			var lp24hour = dayHour + $scope.config.startHour24lp;
+			lp24hour = lp24hour>23?lp24hour-24:lp24hour;
+			return lp24hour;
+		}
+
+		$scope.isMinus = function(taskInDayIndex, $index){
+			if(!$scope.prescribes || !$scope.prescribes.tasks[taskInDayIndex])
+				return false;
+			var lp24hour = getLp24hour($index);
+			var isMinus = ('-' == $scope.prescribes.tasks[taskInDayIndex].times.hours[lp24hour]);
+			return isMinus;
+		}
+		$scope.getHoures2prescribe = function(drugForEdit){
+			var houres2prescribe = [];
+			if(drugForEdit)
+			angular.forEach(drugForEdit.times.hours, function(value, key){
+				if(value){
+					houres2prescribe.push(key);
+				}
+			} );
+			return houres2prescribe;
+		}
+		$scope.prescribeHoursLeft = function(drugForEdit, hour){
+		}
+		$scope.prescribeHourLeft = function(drugForEdit, hour){
+			moveMinus(drugForEdit.times.hours, hour);
+		}
+		$scope.prescribeHourRight = function(drugForEdit, hour){
+			movePlus(drugForEdit.times.hours, hour + 1);
+		}
+		$scope.prescribeHoursRight = function(drugForEdit, hour){
+		}
 		$scope.useHour = function(taskInDay, taskInDayIndex, $index){
 			if(taskInDay.isCollapsed){
-				var hour = $index;
-				console.log(taskInDay);
-				console.log(taskInDayIndex);
-				console.log($index);
+				var hour =  getLp24hour($index);
 				var editedDrug = $scope.prescribes.tasks[taskInDay.i];
 				if(!editedDrug.times){
 					editedDrug.times = {};
 					editedDrug.times.hours = getDayHoursEmpty();
 				}
-				if(!editedDrug.times.hours[$index]){
-					editedDrug.times.hours[$index] = "-";
+				if(!editedDrug.times.hours[hour]){
+					editedDrug.times.hours[hour] = "-";
 				}else{
-					editedDrug.times.hours[$index] = null;
+					editedDrug.times.hours[hour] = null;
 				}
-				console.log(editedDrug);
 				$scope.numberOfChange++;
+				taskInDay.dialogTab = "times";
 			}
 		}
 
@@ -250,7 +308,6 @@
 			} );
 			taskInDay.isCollapsed = !oldCollapsed;
 			$scope.editedPrescribeDrug =  $scope.prescribes.tasks[$index];
-			console.log($scope.editedPrescribeDrug);
 			if(null == $scope.editedPrescribeDrug){
 				taskInDay.dialogTab = "drug";
 			}else{
@@ -261,11 +318,11 @@
 				method : 'GET',
 				url : '/read/drug_'+$scope.editedPrescribeDrug.DRUG_ID
 			}).success(function(data, status, headers, config) {
-				console.log(data);
 				$scope.drugDocument = data;
 			}).error(function(data, status, headers, config) {
+				$scope.drugDocument = null;
 			});
-			
+
 		}
 		$scope.addDose = function(doseToAdd){
 			console.log(doseToAdd);
@@ -325,14 +382,29 @@
 			});
 		}
 
-
 		moveTo = function(arrayToSort, indexFrom, indexTo){
 			var el = arrayToSort.splice(indexFrom, 1);
 			arrayToSort.splice(indexTo, 0, el[0]);
+			$scope.numberOfChange++;
 		}
 
 		moveUp = function(arrayToSort, index){
 			moveTo(arrayToSort, index,index-1);
+		}
+
+		movePlus = function(arrayToSort, index){
+			if(index < arrayToSort.length){
+				moveUp(arrayToSort, index);
+			}else{
+				moveTo(arrayToSort, index-1,0);
+			}
+		}
+		moveMinus = function(arrayToSort, index){
+			if(index > 0){
+				moveUp(arrayToSort, index);
+			}else{
+				moveTo(arrayToSort, 0, arrayToSort.length-1);
+			}
 		}
 
 		contextMenuPaste = function($itemScope){
@@ -409,26 +481,10 @@
 			}],
 			null,
 			['<span class="glyphicon glyphicon-arrow-up"></span> Догори', function ($itemScope) {
-				console.log($itemScope.prescribes.tasks);
-				var arrayToSort = $itemScope.prescribes.tasks;
-				var index = $itemScope.$index;
-				if(index > 0){
-					moveUp(arrayToSort, index);
-				}else{
-					moveTo(arrayToSort, 0, arrayToSort.length-1);
-				}
+				moveMinus($itemScope.prescribes.tasks, $itemScope.$index);
 			}],
 			['<span class="glyphicon glyphicon-arrow-down"></span> Донизу', function ($itemScope) {
-				console.log('Down');
-				console.log($itemScope.prescribes.tasks);
-				console.log($itemScope);
-				var index = $itemScope.$index + 1;
-				var arrayToSort = $itemScope.prescribes.tasks;
-				if(index < arrayToSort.length){
-					moveUp(arrayToSort, index);
-				}else{
-					moveTo(arrayToSort, index-1,0);
-				}
+				movePlus($itemScope.prescribes.tasks, $itemScope.$index + 1);
 			}]
 		];
 

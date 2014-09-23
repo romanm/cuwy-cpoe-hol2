@@ -11,5 +11,6 @@ var config = {
 			{title:"IX::Пацієнт",name:"IX::Пацієнт",url:"patient.html"},
 			{title:"Ліка додаток",name:"Ліка додаток",url:"drug.html"}
 		]
-	}
+	},
+	startHour24lp: 8
 };
