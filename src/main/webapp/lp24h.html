@@ -155,7 +155,8 @@
 				<table>
 					<tr>
 						<td>
-						<span class="glyphicon glyphicon-arrow-left"></span>
+						<span data-ng-click="prescribeHoursLeft(drugForEdit)" 
+						class="glyphicon glyphicon-arrow-left"></span>
 						||
 						</td>
 						<td data-ng-repeat="hour2prescribe in getHoures2prescribe(drugForEdit)">
@@ -166,7 +167,8 @@
 						</td>
 						<td>
 						|
-						<span class="glyphicon glyphicon-arrow-right"></span>
+						<span data-ng-click="prescribeHoursRight(drugForEdit)"
+						class="glyphicon glyphicon-arrow-right"></span>
 						</td>
 					</tr>
 				</table>
@@ -272,7 +274,11 @@
 			} );
 			return houres2prescribe;
 		}
-		$scope.prescribeHoursLeft = function(drugForEdit, hour){
+		$scope.prescribeHoursLeft = function(drugForEdit){
+			var houres2prescribe = $scope.getHoures2prescribe(drugForEdit);
+			angular.forEach(houres2prescribe, function(hourValue, key){
+				$scope.prescribeHourLeft(drugForEdit, hourValue);
+			});
 		}
 		$scope.prescribeHourLeft = function(drugForEdit, hour){
 			moveMinus(drugForEdit.times.hours, hour);
@@ -280,7 +286,12 @@
 		$scope.prescribeHourRight = function(drugForEdit, hour){
 			movePlus(drugForEdit.times.hours, hour + 1);
 		}
-		$scope.prescribeHoursRight = function(drugForEdit, hour){
+		$scope.prescribeHoursRight = function(drugForEdit){
+			var houres2prescribe = $scope.getHoures2prescribe(drugForEdit);
+			angular.forEach(houres2prescribe, function(hourValue, key){
+				console.log(hourValue+" "+key);
+				$scope.prescribeHourRight(drugForEdit, hourValue);
+			});
 		}
 		$scope.useHour = function(taskInDay, taskInDayIndex, $index){
 			if(taskInDay.isCollapsed){
