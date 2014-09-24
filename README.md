@@ -1,4 +1,4 @@
 cuwy-cpoe-hol2
 ==============
 
-Intensive care prescribe 
+Intensive care prescription 
