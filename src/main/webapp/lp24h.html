@@ -52,9 +52,16 @@
 			<tr>
 				<th>N</th>
 				<th data-ng-context-menu="menuTasksAll" >Призначеня</th>
-				<th data-ng-repeat="dayHour in dayHours">
+				<th data-ng-repeat="dayHour in dayHours"
+					data-ng-init="lpHour = getLp24hourStr(dayHour)"
+				>
 					|
-					{{getLp24hourStr(dayHour)}}
+					<u data-ng-show="lpHour == prescribeStartHour ">
+					{{lpHour}}
+					</u>
+					<span data-ng-show="lpHour != prescribeStartHour ">
+					{{lpHour}}
+					</span>
 				</th>
 				<th>|</th>
 			</tr>
@@ -75,9 +82,13 @@
 				title="{{taskInDay.isCollapsed}}"
 				>
 				{{prescribes.tasks[$index].DRUG_NAME == null ? "-":prescribes.tasks[$index].DRUG_NAME}}
+					<small data-ng-show="prescribes.tasks[$index].dose.DOSECONCENTRATON_NUMBER">
+						{{prescribes.tasks[$index].dose.DOSECONCENTRATON_NUMBER}}{{prescribes.tasks[$index].dose.DOSECONCENTRATON_UNIT}}
+					</small>
 					<span>
 						{{prescribes.tasks[$index].dose.DOSE_NUMBER}}
 						{{prescribes.tasks[$index].dose.DOSE_UNIT}}
+						{{prescribes.tasks[$index].dose.DOSE_ROUTE_OF_ADMINISTRATION}}
 					</span>
 				</td>
 				<td data-ng-repeat="dayHour in dayHours"
@@ -117,8 +128,6 @@
 			<div class="row-fluid" title="{{taskInDay}}"
 					data-ng-init="drugForEdit = prescribes.tasks[$index]"
 			>
-			ЛІКА
-			{{$index + 1}}
 			{{prescribes.tasks[$index].DRUG_NAME}}
 				<div data-ng-show="taskInDay.dialogTab=='drug'">
 					<form class="navbar-form navbar-left" role="search">
@@ -142,11 +151,56 @@
 					</form>
 				</div>
 				<div data-ng-show="taskInDay.dialogTab=='dose'">
-					<span data-ng-repeat="dose in drugDocument.doses" data-ng-click="addDose(dose)">
-						{{dose.DOSE_NUMBER}}
-						{{dose.DOSE_UNIT}}
-						 |
-					</span>
+	<div class="row">
+		<div class="col-xs-2">
+			<span data-ng-repeat="dose in drugDocument.doses" data-ng-click="addDoseToPrescribeDrug(dose)">
+				<small data-ng-show="dose.DOSECONCENTRATON_NUMBER">
+					{{dose.DOSECONCENTRATON_NUMBER}}{{dose.DOSECONCENTRATON_UNIT}}
+				</small>
+				{{dose.DOSE_NUMBER}}
+				{{dose.DOSE_UNIT}}
+				{{dose.DOSE_ROUTE_OF_ADMINISTRATION}}
+				|
+			</span>
+		</div>
+		<div class="col-xs-6">
+			<table>
+				<tr>
+					<th title="Концентрація">--</th>
+					<th title="Одиниці виміру концентрації">
+						<span 
+						data-ng-repeat="doseConcentrationUnit in ['%', 'мг/мл']"
+						data-ng-click="newDrugDocumentDose.DOSECONCENTRATON_UNIT = doseConcentrationUnit"
+						><span data-ng-show="$index != 0">|</span>{{doseConcentrationUnit}}</span>
+					</th>
+					<th></th>
+					<th title="Кількість">--</th>
+					<th title="Одиниці виміру">
+						<span 
+						data-ng-repeat="doseUnit in ['мл', 'таб', 'мг']"
+						data-ng-click="newDrugDocumentDose.DOSE_UNIT = doseUnit"
+						><span data-ng-show="$index != 0">|</span>{{doseUnit}}</span>
+					</th>
+					<th title="Шлях введення">
+						<span 
+						data-ng-repeat="doseRouteOfAdministration in ['в/в', 'в/м', 'п.о.']"
+						data-ng-click="newDrugDocumentDose.DOSE_ROUTE_OF_ADMINISTRATION = doseRouteOfAdministration"
+						><span data-ng-show="$index != 0">|</span>{{doseRouteOfAdministration}}</span>
+					</th>
+				</tr>
+				<tr>
+					<td> <input ng-model="newDrugDocumentDose.DOSECONCENTRATON_NUMBER" type="text" class="form-control" /> </td>
+					<td> <input ng-model="newDrugDocumentDose.DOSECONCENTRATON_UNIT" type="text" class="form-control" /> </td>
+					<td>-</td>
+					<td> <input ng-model="newDrugDocumentDose.DOSE_NUMBER" type="text" class="form-control" /> </td>
+					<td> <input ng-model="newDrugDocumentDose.DOSE_UNIT" type="text" class="form-control" /> </td>
+					<td> <input ng-model="newDrugDocumentDose.DOSE_ROUTE_OF_ADMINISTRATION" type="text" class="form-control" /> </td>
+					<td> &nbsp; </td>
+					<td> <a data-ng-click="addNewDrugDocumentDose()"> <span class="glyphicon glyphicon-plus"></span> </a> </td>
+				</tr>
+			</table>
+		</div>
+	</div>
 					<hr/>
 				</div>
 				<div data-ng-show="taskInDay.dialogTab=='times'"
@@ -204,302 +258,7 @@
 	<script src="/db/drug1sList.json.js"></script>
 	<script src="/js2/cuwy1.config.js"></script>
 	<script src="/js2/cuwy1.directives.js"></script>
-	<script type="text/javascript">
-	cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
-		console.log("lp24hCtrl");
-		$scope.numberOfChange = 0;
-		$scope.drug1sList = drug1sList;
-		$scope.parameters = parameters;
-		if(!$scope.parameters.id)
-			$scope.parameters.id = 0;
-		console.log($scope.parameters);
-
-		getDayHours = function(){
-			var dayHours = [];
-			for(var i=0;i<24;i++) dayHours.push(i);
-			return dayHours;
-		}
-
-		getDayHoursEmpty = function(){
-			var dayHours = [];
-			for(var i=0;i<24;i++) dayHours.push(null);
-			return dayHours;
-		}
-
-		$scope.config = config;
-		$scope.siteMap = config.siteMap.siteMaps[2];
-		console.log($scope.config.startHour24lp);
-		$scope.dayHours = getDayHours();
-		var tasksInDay = [];
-		for(var ii=0;ii<12;ii++){
-			tasksInDay.push({i:ii,isCollapsed:false});
-		}
-		$scope.tasksInDay = tasksInDay;
-
-		$http({
-			method : 'GET',
-			url : '/read/prescribe_'+$scope.parameters.id
-		}).success(function(data, status, headers, config) {
-			console.log(data);
-			$scope.prescribes = data;
-			if(null == $scope.prescribes.tasks)
-				$scope.prescribes.tasks = [];
-		}).error(function(data, status, headers, config) {
-		});
-
-		$scope.getLp24hourStr = function(dayHour){
-			var lp24hour = getLp24hour(dayHour);
-			return (lp24hour>9?'':'0')+lp24hour;
-		}
-		getLp24hour= function(dayHour){
-			var lp24hour = dayHour + $scope.config.startHour24lp;
-			lp24hour = lp24hour>23?lp24hour-24:lp24hour;
-			return lp24hour;
-		}
-
-		$scope.isMinus = function(taskInDayIndex, $index){
-			if(!$scope.prescribes || !$scope.prescribes.tasks[taskInDayIndex])
-				return false;
-			var lp24hour = getLp24hour($index);
-			var isMinus = ('-' == $scope.prescribes.tasks[taskInDayIndex].times.hours[lp24hour]);
-			return isMinus;
-		}
-		$scope.getHoures2prescribe = function(drugForEdit){
-			var houres2prescribe = [];
-			if(drugForEdit)
-			angular.forEach(drugForEdit.times.hours, function(value, key){
-				if(value){
-					houres2prescribe.push(key);
-				}
-			} );
-			return houres2prescribe;
-		}
-		$scope.prescribeHoursLeft = function(drugForEdit){
-			var houres2prescribe = $scope.getHoures2prescribe(drugForEdit);
-			angular.forEach(houres2prescribe, function(hourValue, key){
-				$scope.prescribeHourLeft(drugForEdit, hourValue);
-			});
-		}
-		$scope.prescribeHourLeft = function(drugForEdit, hour){
-			moveMinus(drugForEdit.times.hours, hour);
-		}
-		$scope.prescribeHourRight = function(drugForEdit, hour){
-			movePlus(drugForEdit.times.hours, hour + 1);
-		}
-		$scope.prescribeHoursRight = function(drugForEdit){
-			var houres2prescribe = $scope.getHoures2prescribe(drugForEdit);
-			angular.forEach(houres2prescribe, function(hourValue, key){
-				console.log(hourValue+" "+key);
-				$scope.prescribeHourRight(drugForEdit, hourValue);
-			});
-		}
-		$scope.useHour = function(taskInDay, taskInDayIndex, $index){
-			if(taskInDay.isCollapsed){
-				var hour =  getLp24hour($index);
-				var editedDrug = $scope.prescribes.tasks[taskInDay.i];
-				if(!editedDrug.times){
-					editedDrug.times = {};
-					editedDrug.times.hours = getDayHoursEmpty();
-				}
-				if(!editedDrug.times.hours[hour]){
-					editedDrug.times.hours[hour] = "-";
-				}else{
-					editedDrug.times.hours[hour] = null;
-				}
-				$scope.numberOfChange++;
-				taskInDay.dialogTab = "times";
-			}
-		}
-
-		$scope.openPrescribeDrugDialog = function(taskInDay, $index){
-			console.log("openPrescribeDrugDialog");
-			var oldCollapsed = taskInDay.isCollapsed;
-			$($scope.tasksInDay).each(function () {
-				this.isCollapsed = false;
-			} );
-			taskInDay.isCollapsed = !oldCollapsed;
-			$scope.editedPrescribeDrug =  $scope.prescribes.tasks[$index];
-			if(null == $scope.editedPrescribeDrug){
-				taskInDay.dialogTab = "drug";
-			}else{
-				taskInDay.dialogTab = "dose";
-			}
-
-			$http({
-				method : 'GET',
-				url : '/read/drug_'+$scope.editedPrescribeDrug.DRUG_ID
-			}).success(function(data, status, headers, config) {
-				$scope.drugDocument = data;
-			}).error(function(data, status, headers, config) {
-				$scope.drugDocument = null;
-			});
-
-		}
-		$scope.addDose = function(doseToAdd){
-			console.log(doseToAdd);
-			console.log($scope.editedPrescribeDrug);
-			$scope.editedPrescribeDrug.dose = doseToAdd;
-			$scope.numberOfChange++;
-		}
-		$scope.drugToTask = function(drug, taskInDay){
-			console.log("drugToTask");
-			console.log(drug);
-			console.log(taskInDay);
-			var addNull = taskInDay.i - $scope.prescribes.tasks.length;
-			if(addNull > 0){
-				for (i = 0; i < addNull; i++) {
-					$scope.prescribes.tasks.push(null);
-				}
-				$scope.prescribes.tasks.push(drug);
-				$scope.numberOfChange++;
-			}else if(null == $scope.prescribes.tasks[taskInDay.i]){
-				$scope.prescribes.tasks[taskInDay.i] = drug;
-				$scope.numberOfChange++;
-			}else{
-				console.log("rewrite drug? watch with times? ");
-				$scope.prescribes.tasks[taskInDay.i] = drug;
-				$scope.numberOfChange++;
-			}
-			console.log($scope.prescribes.tasks);
-		}
-
-		$scope.devPost = function(){
-			console.log("--------devPost-----------");
-			$scope.prescribes.editPrescribesName = false;
-			$http({
-				method : 'POST',
-				data : $scope.prescribes,
-				url : "/save/prescribes"
-			}).success(function(data, status, headers, config){
-				console.log(data);
-				$scope.prescribes = data;
-			}).error(function(data, status, headers, config) {
-				$scope.error = data;
-			});
-		}
-
-		$scope.saveNewDrug = function(seekDrug){
-			console.log("saveNewDrug");
-			console.log(seekDrug);
-			$http({
-				method : 'POST',
-				data : {"DRUG_NAME":seekDrug},
-				url : '/saveNewDrug'
-			}).success(function(data, status, headers, config){
-				$scope.drug1sList = data;
-				console.log(data);
-			}).error(function(data, status, headers, config) {
-				$scope.error = data;
-			});
-		}
-
-		moveTo = function(arrayToSort, indexFrom, indexTo){
-			var el = arrayToSort.splice(indexFrom, 1);
-			arrayToSort.splice(indexTo, 0, el[0]);
-			$scope.numberOfChange++;
-		}
-
-		moveUp = function(arrayToSort, index){
-			moveTo(arrayToSort, index,index-1);
-		}
-
-		movePlus = function(arrayToSort, index){
-			if(index < arrayToSort.length){
-				moveUp(arrayToSort, index);
-			}else{
-				moveTo(arrayToSort, index-1,0);
-			}
-		}
-		moveMinus = function(arrayToSort, index){
-			if(index > 0){
-				moveUp(arrayToSort, index);
-			}else{
-				moveTo(arrayToSort, 0, arrayToSort.length-1);
-			}
-		}
-
-		contextMenuPaste = function($itemScope){
-			console.log('Paste');
-			console.log($itemScope);
-			$http({
-				method : 'GET',
-				url : '/session/paste'
-			}).success(function(data, status, headers, config) {
-				console.log(data);
-				var drug = data;
-				console.log($itemScope.taskInDay);
-				$scope.drugToTask(drug, $itemScope.taskInDay);
-			}).error(function(data, status, headers, config) {
-			});
-		}
-		contextMenuCopy = function(copyObject){
-			console.log("contextMenuCopy");
-			console.log(copyObject);
-			$http({
-				method : 'POST',
-				data : copyObject,
-				url : "/session/copy"
-			}).success(function(data, status, headers, config){
-				console.log(data);
-			}).error(function(data, status, headers, config) {
-				$scope.error = data;
-			});
-		}
-
-		$scope.menuPrescribe = [
-			['<span class="glyphicon glyphicon-edit"></span> Корекція', function ($itemScope) {
-				console.debug('Edit');
-				console.log($itemScope);
-				
-				$itemScope.prescribes.editPrescribesName = !$itemScope.prescribes.editPrescribesName;
-				console.log($itemScope.prescribes.editPrescribesName);
-			}]
-		];
-		$scope.menuTasksAll = [
-			['Copy', function ($itemScope) { contextMenuCopy($itemScope.prescribes); }],
-			['Paste', function ($itemScope) { 
-				$http({
-					method : 'GET',
-					url : '/session/paste'
-				}).success(function(data, status, headers, config) {
-					if($scope.prescribes.tasks.length == 0){
-						$scope.prescribes.tasks = data.tasks;
-						$scope.numberOfChange += $scope.prescribes.tasks.length;
-					}
-				}).error(function(data, status, headers, config) {
-				});
-			}]
-		];
-		$scope.menuTask = [
-			['Copy', function ($itemScope) { 
-				console.log('Copy');
-				console.log($itemScope);
-				console.log($itemScope.$index);
-				var drug = $itemScope.prescribes.tasks[$itemScope.$index];
-				console.log(drug);
-				contextMenuCopy(drug); 
-			}],
-			['Paste', function ($itemScope) { contextMenuPaste($itemScope); }],
-			null,
-			['Додати строчку', function ($itemScope) {
-				$itemScope.prescribes.tasks.splice($itemScope.$index, 0, null);
-				$scope.numberOfChange++;
-			}],
-			['Видалити', function ($itemScope) {
-				console.log('Delete');
-				$itemScope.prescribes.tasks.splice($itemScope.$index, 1);
-				$scope.numberOfChange++;
-			}],
-			null,
-			['<span class="glyphicon glyphicon-arrow-up"></span> Догори', function ($itemScope) {
-				moveMinus($itemScope.prescribes.tasks, $itemScope.$index);
-			}],
-			['<span class="glyphicon glyphicon-arrow-down"></span> Донизу', function ($itemScope) {
-				movePlus($itemScope.prescribes.tasks, $itemScope.$index + 1);
-			}]
-		];
-
-	} ] );
-	</script>
+	<script src="/js2/lp24hCtrl.js"></script>
+	
 </body>
 </html>

@@ -12,7 +12,7 @@
 <span class="navbar-right">
 	<ul class="nav nav-pills" title="{{numberOfChange}} незбережених змін">
 		<li ng-class="{'disabled': numberOfChange == 0}">
-			<a ng-click="saveDrug()" href="#">
+			<a ng-click="saveDrugDocument()" href="#">
 				<span class="glyphicon glyphicon-floppy-disk"></span>
 				{{numberOfChange}}
 				</a>
@@ -22,49 +22,58 @@
 <hr/>
 <div class="container">
 	<div class="row">
-		<div class="col-xs-4">
+		<div class="col-xs-2">
 			<span class="close navbar-right"><small>Назви</small></span>
-			<h3><u>{{drug.DRUG_NAME}}</u></h3>
+			<h3><u>{{drugDocument.DRUG_NAME}}</u></h3>
 		</div>
-		<div class="col-xs-4">
+		<div class="col-xs-6">
 			<span class="close navbar-right"><small>Дози</small></span>
 			<div>
-				<div data-ng-repeat="dose in drug.doses">
+				<div data-ng-repeat="dose in drugDocument.doses"
+					data-ng-click="dose2newDose(dose)"
+					data-ng-context-menu="menuDoses"
+				>
+					<small data-ng-show="dose.DOSECONCENTRATON_NUMBER">
+						{{dose.DOSECONCENTRATON_NUMBER}}{{dose.DOSECONCENTRATON_UNIT}}
+					</small>
 					{{dose.DOSE_NUMBER}}
 					{{dose.DOSE_UNIT}}
-					<!-- 
-					{{dose}}
-					 -->
+					{{dose.DOSE_ROUTE_OF_ADMINISTRATION}}
 				</div>
 			</div>
 			<table>
 				<tr>
-					<th title="Кількість">--</th>
-					<th title="Одиниці виміру">мл|таб.</th>
 					<th title="Концентрація">--</th>
-					<th title="Одиниці виміру концентрації">%|мг/мл</th>
+					<th title="Одиниці виміру концентрації">
+						<span 
+						data-ng-repeat="doseConcentrationUnit in ['%', 'мг/мл']"
+						data-ng-click="newDrugDocumentDose.DOSECONCENTRATON_UNIT = doseConcentrationUnit"
+						><span data-ng-show="$index != 0">|</span>{{doseConcentrationUnit}}</span>
+					</th>
+					<th></th>
+					<th title="Кількість">--</th>
+					<th title="Одиниці виміру">
+						<span 
+						data-ng-repeat="doseUnit in ['мл', 'таб', 'мг']"
+						data-ng-click="newDrugDocumentDose.DOSE_UNIT = doseUnit"
+						><span data-ng-show="$index != 0">|</span>{{doseUnit}}</span>
+					</th>
+					<th title="Шлях введення">
+						<span 
+						data-ng-repeat="doseRouteOfAdministration in ['в/в', 'в/м', 'п.о.']"
+						data-ng-click="newDrugDocumentDose.DOSE_ROUTE_OF_ADMINISTRATION = doseRouteOfAdministration"
+						><span data-ng-show="$index != 0">|</span>{{doseRouteOfAdministration}}</span>
+					</th>
 				</tr>
 				<tr>
-					<td>
-						<input ng-model="doseToAdd.DOSE_NUMBER" type="text" class="form-control" />
-					</td>
-					<td>
-						<input ng-model="doseToAdd.DOSE_UNIT" type="text" class="form-control" />
-					</td>
-					<td>
-						<input ng-model="doseToAdd.DOSECONCENTRATON_NUMBER" type="text" class="form-control" />
-					</td>
-					<td>
-						<input ng-model="doseToAdd.DOSECONCENTRATON_UNIT" type="text" class="form-control" />
-					</td>
-					<td>
-						&nbsp;
-					</td>
-					<td>
-						<a data-ng-click="addDose()">
-							<span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</td>
+					<td> <input ng-model="newDrugDocumentDose.DOSECONCENTRATON_NUMBER" type="text" class="form-control" /> </td>
+					<td> <input ng-model="newDrugDocumentDose.DOSECONCENTRATON_UNIT" type="text" class="form-control" /> </td>
+					<td>-</td>
+					<td> <input ng-model="newDrugDocumentDose.DOSE_NUMBER" type="text" class="form-control" /> </td>
+					<td> <input ng-model="newDrugDocumentDose.DOSE_UNIT" type="text" class="form-control" /> </td>
+					<td> <input ng-model="newDrugDocumentDose.DOSE_ROUTE_OF_ADMINISTRATION" type="text" class="form-control" /> </td>
+					<td> &nbsp; </td>
+					<td> <a data-ng-click="addNewDrugDocumentDose()"> <span class="glyphicon glyphicon-plus"></span> </a> </td>
 				</tr>
 			</table>
 		</div>
@@ -92,7 +101,6 @@
 	cuwyApp.controller('drugCtrl', [ '$scope', '$http', function ($scope, $http) {
 		console.log("drugCtrl");
 		$scope.parameters = parameters;
-		$scope.doseToAdd = {};
 		$scope.numberOfChange = 0;
 
 		$scope.siteMap = config.siteMap.siteMaps[5];
@@ -101,36 +109,44 @@
 			url : '/read/drug_'+$scope.parameters.id
 		}).success(function(data, status, headers, config) {
 			console.log(data);
-			$scope.drug = data;
-			if(null == $scope.drug.doses)
-				$scope.drug.doses = [];
-			if(null == $scope.drug.localIdSequence)
-				$scope.drug.localIdSequence = 1;
+			$scope.drugDocument = data;
+			if(null == $scope.drugDocument.doses)
+				$scope.drugDocument.doses = [];
+			if(null == $scope.drugDocument.localIdSequence)
+				$scope.drugDocument.localIdSequence = 1;
 		}).error(function(data, status, headers, config) {
 		});
 
-		$scope.addDose = function(){
-			$scope.doseToAdd.DOSE_ID = $scope.drug.localIdSequence;
-			$scope.drug.doses.push($scope.doseToAdd);
-			$scope.doseToAdd = {};
-			$scope.drug.localIdSequence++;
+		$scope.newDrugDocumentDose = {};
+		$scope.dose2newDose = function(dose){
+			angular.copy(dose, $scope.newDrugDocumentDose);
+		}
+		$scope.addNewDrugDocumentDose = function(){
+			$scope.newDrugDocumentDose.DOSE_ID = $scope.drugDocument.localIdSequence++;
+			$scope.drugDocument.doses.push($scope.newDrugDocumentDose);
+			$scope.newDrugDocumentDose = {};
 			$scope.numberOfChange++;
 		};
 
-		$scope.saveDrug = function(){
+		$scope.saveDrugDocument = function(){
 			console.log("--------devPost-----------");
 			$http({
 				method : 'POST',
-				data : $scope.drug,
+				data : $scope.drugDocument,
 				url : "/save/drug"
 			}).success(function(data, status, headers, config){
-				console.log(data);
-				$scope.prescribes = data;
-			$scope.numberOfChange = 0;
+				$scope.numberOfChange = 0;
 			}).error(function(data, status, headers, config) {
 				$scope.error = data;
 			});
 		}
+
+		$scope.menuDoses = [
+			['<span class="glyphicon glyphicon-remove"></span> Видалити', function ($itemScope) {
+				$itemScope.drugDocument.doses.splice($itemScope.$index, 1);
+				$scope.numberOfChange++;
+			}]
+		];
 
 	}]);
 	</script>
