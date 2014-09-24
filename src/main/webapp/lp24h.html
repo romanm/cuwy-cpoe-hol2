@@ -50,8 +50,7 @@
 	</caption>
 		<thead>
 			<tr>
-				<th>N</th>
-				<th data-ng-context-menu="menuTasksAll" >Призначеня</th>
+				<th data-ng-context-menu="menuTasksAll" colspan="2" >Призначене лікування</th>
 				<th data-ng-repeat="dayHour in dayHours"
 					data-ng-init="lpHour = getLp24hourStr(dayHour)"
 				>
@@ -72,8 +71,8 @@
 		<tbody data-ng-repeat="taskInDay in tasksInDay"
 				ng-init="taskInDayIndex = $index"
 		>
-			<tr>
-				<td>
+			<tr data-ng-class="{selected:prescribes.tasks[$index].selectMultiple}">
+				<td class="hover" data-ng-click="selectMultiple($index)">
 					<u data-ng-show="prescribes.tasks.length == $index + 1">{{$index + 1}}</u>
 					<span data-ng-show="prescribes.tasks.length != $index + 1">{{$index + 1 }}</span>
 				</td>
@@ -126,7 +125,7 @@
 					</small>
 					</span>
 			<div class="row-fluid" title="{{taskInDay}}"
-					data-ng-init="drugForEdit = prescribes.tasks[$index]"
+				data-ng-init="drugForEdit = prescribes.tasks[$index]"
 			>
 			{{prescribes.tasks[$index].DRUG_NAME}}
 				<div data-ng-show="taskInDay.dialogTab=='drug'">
@@ -246,7 +245,20 @@
 	</div>
 
 	<hr/>
-	<a href="protocols.html">Сторінка протоколів і схем призначень</a>
+	<div>
+		<a href="protocols.html">Сторінка протоколів і схем призначень</a>
+		<span class="navbar-right">
+		<span>
+		скасувати вибір
+		</span>
+		|
+		<span>
+		<a href="/print_md_form_nr_011-o.html">
+		Друк: Форма № 011/о
+		</a>
+		</span>
+		</span>
+	</div>
 
 	<script src="/js/jquery-2.1.1.min.js"></script>
 	<script src="/js/bootstrap.min.js"></script>
