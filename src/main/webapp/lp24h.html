@@ -69,14 +69,14 @@
 				data-ng-init="currentDrug = prescribes.tasks[$index]"
 		 -->
 		<tbody data-ng-repeat="taskInDay in tasksInDay"
-				data-ng-init="taskInDayIndex = $index"
+			ng-init="taskInDayIndex = $index"
 		>
 			<tr data-ng-class="{selected:prescribes.tasks[$index].selectMultiple}">
-				<td class="hover" data-ng-click="selectMultiple(taskInDayIndex)">
-					<u data-ng-show="prescribes.tasks.length == taskInDayIndex + 1">{{$index + 1}}</u>
-					<span data-ng-show="prescribes.tasks.length != taskInDayIndex + 1">{{$index + 1 }}</span>
+				<td class="hover" data-ng-click="selectMultiple($index)">
+					<u data-ng-show="prescribes.tasks.length == $index + 1">{{$index + 1}}</u>
+					<span data-ng-show="prescribes.tasks.length != $index + 1">{{$index + 1 }}</span>
 				</td>
-				<td data-ng-click="openPrescribeDrugDialog(taskInDay, taskInDayIndex)"
+				<td data-ng-click="openPrescribeDrugDialog(taskInDay, $index)"
 				data-ng-context-menu="menuTask"
 				title="{{taskInDay.isCollapsed}}"
 				>
@@ -124,10 +124,8 @@
 					</a>
 					</small>
 					</span>
-			<div class="row-fluid" title="{{taskInDay}}"
-				data-ng-init="drugForEdit = prescribes.tasks[$index]"
-			>
-			{{prescribes.tasks[$index].DRUG_NAME}}
+			<div class="row-fluid" title="{{taskInDay}}">
+				{{prescribes.tasks[taskInDayIndex].DRUG_NAME}}
 				<div data-ng-show="taskInDay.dialogTab=='drug'">
 					<form class="navbar-form navbar-left" role="search">
 						<div class="form-group">
@@ -208,19 +206,19 @@
 				<table>
 					<tr>
 						<td>
-						<span data-ng-click="prescribeHoursLeft(drugForEdit)" 
+						<span data-ng-click="prescribeHoursLeft(prescribes.tasks[taskInDayIndex])" 
 						class="glyphicon glyphicon-arrow-left"></span>
 						||
 						</td>
-						<td data-ng-repeat="hour2prescribe in getHoures2prescribe(drugForEdit)">
-						<span data-ng-click="prescribeHourLeft(drugForEdit,hour2prescribe)" class="glyphicon glyphicon-arrow-left"></span>
+						<td data-ng-repeat="hour2prescribe in getHoures2prescribe(prescribes.tasks[taskInDayIndex])">
+						<span data-ng-click="prescribeHourLeft(prescribes.tasks[taskInDayIndex],hour2prescribe)" class="glyphicon glyphicon-arrow-left"></span>
 							{{hour2prescribe}}
-						<span data-ng-click="prescribeHourRight(drugForEdit, hour2prescribe)"  class="glyphicon glyphicon-arrow-right"></span>
+						<span data-ng-click="prescribeHourRight(prescribes.tasks[taskInDayIndex], hour2prescribe)"  class="glyphicon glyphicon-arrow-right"></span>
 						|
 						</td>
 						<td>
 						|
-						<span data-ng-click="prescribeHoursRight(drugForEdit)"
+						<span data-ng-click="prescribeHoursRight(prescribes.tasks[taskInDayIndex])"
 						class="glyphicon glyphicon-arrow-right"></span>
 						</td>
 					</tr>
@@ -254,7 +252,7 @@
 		|
 		<span>
 		<a href="/print_md_form_nr_011-o.html?id={{parameters.id}}">
-			Друк: Форма № 011/о
+		Друк: Форма № 011/о
 		</a>
 		</span>
 		</span>

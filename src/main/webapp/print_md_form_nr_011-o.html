@@ -29,7 +29,14 @@
 		<td style="width: 60mm;"></td>
 		<td style="width: 13mm;"></td>
 		<td style="width: 15mm;">01</td>
-		<td style="width: 47mm;">м</td>
+		<td style="width: 47mm;">
+		<span data-ng-show="!patient">
+		м
+		</span>
+		<span data-ng-show="patient">
+		{{prescribeHistory.date | date:'dd-MM-yyyy '}}
+		</span>
+		</td>
 		<td style="width: 35mm;">14</td>
 	</tr>
 </table>
@@ -38,7 +45,10 @@
 <table class="form011oPatientName">
 	<tr>
 		<td style="width: 15mm;"></td>
-		<td style="width: 165mm;">. П</td>
+		<td style="width: 165mm;">
+			{{patient.PATIENT_NAME}}
+			<span data-ng-show="!patient">.</span>
+		</td>
 		<td style="width: 35mm;"></td>
 		<td>. 1</td>
 	</tr>
@@ -108,16 +118,34 @@
 		}
 		
 
-		$http({
-			method : 'GET',
-			url : '/read/prescribe_'+$scope.parameters.id
-		}).success(function(data, status, headers, config) {
-			$scope.prescribes = data;
-			console.log($scope.prescribes);
-			if(null == $scope.prescribes.tasks)
-				$scope.prescribes.tasks = [];
-		}).error(function(data, status, headers, config) {
-		});
+		console.log("$scope.parameters");
+		console.log($scope.parameters);
+
+		if($scope.parameters.pid){
+				console.log("----------");
+			$http({
+				method : 'GET',
+				url : '/read/patient_'+$scope.parameters.pid
+			}).success(function(data, status, headers, config) {
+				console.log(data);
+				$scope.patient = data;
+				$scope.prescribeHistory = data.prescribesHistory[$scope.parameters.phi];
+				$scope.prescribes = $scope.prescribeHistory.prescribes;
+				console.log($scope.prescribes);
+			}).error(function(data, status, headers, config) {
+			});
+		}else{
+			$http({
+				method : 'GET',
+				url : '/read/prescribe_'+$scope.parameters.id
+			}).success(function(data, status, headers, config) {
+				$scope.prescribes = data;
+				console.log($scope.prescribes);
+				if(null == $scope.prescribes.tasks)
+					$scope.prescribes.tasks = [];
+			}).error(function(data, status, headers, config) {
+			});
+		}
 
 		$scope.isMinus = function(taskInDayIndex, $index){
 			if(!$scope.prescribes || !$scope.prescribes.tasks[taskInDayIndex]
@@ -125,8 +153,6 @@
 			)
 				return false;
 			var lp24hour = getLp24hour($index);
-			console.log("-"+lp24hour);
-			console.log($scope.prescribes.tasks[taskInDayIndex].times.hours);
 			var isMinus = ('-' == $scope.prescribes.tasks[taskInDayIndex].times.hours[lp24hour]);
 			return isMinus;
 		}
