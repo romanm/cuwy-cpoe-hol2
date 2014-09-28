@@ -13,7 +13,12 @@
 </span>
 <span class="navbar-right">
 	<ul class="nav nav-pills" title="{{numberOfChange}} незбережених змін">
-		<li ng-class="{'disabled': numberOfChange == 0}">
+		<li>
+			<a data-ng-click="newPrescribes()" href="#">
+				новий лист призначень
+			</a>
+		</li>
+		<li data-ng-class="{'disabled': numberOfChange == 0}">
 			<a ng-click="savePatient()" href="#">
 				<span class="glyphicon glyphicon-floppy-disk"></span>
 				{{numberOfChange}}
@@ -26,10 +31,30 @@
 	<div class="row">
 		<div class="col-xs-12">
 			<div data-ng-repeat="prescribeHistory in patient.prescribesHistory">
-				<span title="{{prescribeHistory.date | date:'HH:mm'}}">
+				<span title="{{prescribeHistory.date | date:'HH:mm:ss'}}"
+					data-ng-click="prescribeHistory.isCollapsed = !prescribeHistory.isCollapsed"
+				>
 				{{prescribeHistory.date | date:'dd-MM-yyyy '}}
+				<span class="glyphicon glyphicon-folder-{{!prescribeHistory.isCollapsed?'open':'close'}}"></span>
+<!-- 
+				<input id="patientDob{{$index}}" name="patientDob{{$index}}" 
+					ng-model="prescribeHistory.date"
+					ng-click="open($event)"
+					is-open="opened"
+					datepicker-options="dateOptions"
+					datepicker-popup="dd-MM-yyyy" 
+				/>
+					class="form-control input-sm"
+					datepicker-popup="yyyy-MM-dd" 
+					class="form-control input-sm" type="text" placeholder="д.н. (дд-мм-рррр)"
+					datepicker-popup="dd-MM-yyyy" is-open="opened"
+					datepicker-options="dateOptions" ng-required="true"
+ -->
 				</span>
-				<table>
+				<span class="navbar-right">
+					<span class="glyphicon glyphicon-print"></span>
+				</span>
+				<table data-ng-show="!prescribeHistory.isCollapsed" >
 					<thead>
 						<tr>
 							<th>N</th><th>Призначеня</th>
@@ -81,12 +106,12 @@
 		$scope.siteMap = config.siteMap.siteMaps[4];
 		$scope.parameters = parameters;
 		$scope.dayHours = [];
-		for(var i=0;i<24;i++) $scope.dayHours.push(i);
+		for(var i=0;i<24;i++) 
+			$scope.dayHours.push(i);
 		$scope.tasksInDay = [];
-		for(var ii=0;ii<12;ii++){
+		for(var ii=0;ii<19;ii++){
 			$scope.tasksInDay.push({i:ii,isCollapsed:false});
 		}
-
 
 		$http({
 			method : 'GET',
@@ -95,15 +120,19 @@
 			$scope.patient = data;
 			if(null == $scope.patient.prescribesHistory){
 				$scope.patient.prescribesHistory = [];
-				var today = new Date();
-				var prescrebeHistory = {date:today,prescribe:{}}
-				$scope.patient.prescribesHistory.push(prescrebeHistory);
-				console.log($scope.patient);
+				$scope.newPrescribes();
 			}
+			console.log($scope.patient);
 		}).error(function(data, status, headers, config) {
 		});
 
-
+		$scope.newPrescribes = function(){
+			console.log("---newPrescribes------------------");
+			var today = new Date();
+			var prescrebeHistory = {date:today, prescribes:{tasks:[]}}
+			//$scope.patient.prescribesHistory.push(prescrebeHistory);
+			$scope.patient.prescribesHistory.splice(0, 0, prescrebeHistory);
+		}
 		$scope.savePatient = function(){
 			console.log("--------devPost-----------");
 			$http({
@@ -118,7 +147,18 @@
 			});
 		}
 
-		
+
+		$scope.open = function($event) {
+			$event.preventDefault();
+			$event.stopPropagation();
+			$scope.opened = true;
+		};
+
+		$scope.dateOptions = {
+			formatYear: 'yyyy',
+			startingDay: 1
+		};
+
 	}]);
 	</script>
 </body>

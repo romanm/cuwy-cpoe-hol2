@@ -69,14 +69,14 @@
 				data-ng-init="currentDrug = prescribes.tasks[$index]"
 		 -->
 		<tbody data-ng-repeat="taskInDay in tasksInDay"
-				ng-init="taskInDayIndex = $index"
+				data-ng-init="taskInDayIndex = $index"
 		>
 			<tr data-ng-class="{selected:prescribes.tasks[$index].selectMultiple}">
-				<td class="hover" data-ng-click="selectMultiple($index)">
-					<u data-ng-show="prescribes.tasks.length == $index + 1">{{$index + 1}}</u>
-					<span data-ng-show="prescribes.tasks.length != $index + 1">{{$index + 1 }}</span>
+				<td class="hover" data-ng-click="selectMultiple(taskInDayIndex)">
+					<u data-ng-show="prescribes.tasks.length == taskInDayIndex + 1">{{$index + 1}}</u>
+					<span data-ng-show="prescribes.tasks.length != taskInDayIndex + 1">{{$index + 1 }}</span>
 				</td>
-				<td data-ng-click="openPrescribeDrugDialog(taskInDay, $index)"
+				<td data-ng-click="openPrescribeDrugDialog(taskInDay, taskInDayIndex)"
 				data-ng-context-menu="menuTask"
 				title="{{taskInDay.isCollapsed}}"
 				>
@@ -253,8 +253,8 @@
 		</span>
 		|
 		<span>
-		<a href="/print_md_form_nr_011-o.html">
-		Друк: Форма № 011/о
+		<a href="/print_md_form_nr_011-o.html?id={{parameters.id}}">
+			Друк: Форма № 011/о
 		</a>
 		</span>
 		</span>

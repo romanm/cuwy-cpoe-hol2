@@ -1,1 +1,147 @@
-print_md_form_nr_011-o.html
+<!DOCTYPE html>
+<html data-ng-app="form011oApp" data-ng-controller="form011oCtrl">
+<head>
+	<meta charset="utf-8" />
+	<title>{{siteMap.title}}</title>
+	<link href="/css/bootstrap.css1" rel="stylesheet"/>
+	<style type="text/css">
+	@page
+		{
+			margin: 10mm 1mm 25mm 8mm;
+		/*
+		.form011oPatientName tr td {height:4mm}
+		*/
+		}
+		.form011o {line-height:4.7mm}
+		table.form011o th td {
+			border: 1pt dotted #000000;padding:3px;
+			margin: 0px;
+			border-collapse: collapse;
+			border-spacing: 0px;
+		}
+		col.nameCol{ width: 50mm; }
+		col.hourCol{ width: 8mm; }
+	</style>
+</head>
+<body>
+<table class="form011oData">
+	<tr>
+		<td style="width: 60mm;"></td>
+		<td style="width: 13mm;"></td>
+		<td style="width: 15mm;">01</td>
+		<td style="width: 47mm;">м</td>
+		<td style="width: 35mm;">14</td>
+	</tr>
+</table>
+<div style="line-height:14mm">.
+</div>
+<table class="form011oPatientName">
+	<tr>
+		<td style="width: 15mm;"></td>
+		<td style="width: 165mm;">. П</td>
+		<td style="width: 35mm;"></td>
+		<td>. 1</td>
+	</tr>
+</table>
+<div style="line-height:3mm">.
+</div>
+<table class="form011o">
+	<colgroup>
+		<col class="hourCol"></col>
+		<col class="nameCol"></col>
+		<col class="hourCol" data-ng-repeat="dayHour in dayHours"></col>
+		<col class="hourCol"></col>
+	</colgroup>
+	<tr data-ng-repeat="taskInDay in tasksInDay"
+		data-ng-init="taskInDayIndex = $index"
+	>
+		<td>.</td>
+		<td>.
+			{{prescribes.tasks[$index].DRUG_NAME == null ? "":prescribes.tasks[$index].DRUG_NAME}}
+			<small data-ng-show="prescribes.tasks[$index].dose.DOSECONCENTRATON_NUMBER">
+				{{prescribes.tasks[$index].dose.DOSECONCENTRATON_NUMBER}}{{prescribes.tasks[$index].dose.DOSECONCENTRATON_UNIT}}
+			</small>
+			<span>
+				{{prescribes.tasks[$index].dose.DOSE_NUMBER}}
+				{{prescribes.tasks[$index].dose.DOSE_UNIT}}
+				{{prescribes.tasks[$index].dose.DOSE_ROUTE_OF_ADMINISTRATION}}
+			</span>
+		</td>
+		<td data-ng-repeat="dayHour in dayHours">.
+			<span 
+				data-ng-show="isMinus(taskInDayIndex, $index)"
+				class="glyphicon glyphicon-minus"></span>
+			<b data-ng-show="isMinus(taskInDayIndex, $index)">--</b>
+		</td>
+		<td>.</td>
+	</tr>
+</table>
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js2/cuwy1.config.js"></script>
+	<script type="text/javascript">
+	parameters = {};
+	if(window.location.search){
+		$.each(window.location.search.split("?")[1].split("&"), function(index, value){
+			var par = value.split("=");
+			parameters[par[0]] = par[1];
+		});
+	}
+
+	angular.module('form011oApp', []).controller('form011oCtrl',['$scope', '$http', function($scope, $http) {
+		console.log("----------form011oCtrl----------");
+		$scope.config = config;
+		$scope.parameters = parameters;
+		if(!$scope.parameters.id)
+			$scope.parameters.id = 0;
+
+		getDayHours = function(){
+			var dayHours = [];
+			for(var i=0;i<24;i++) dayHours.push(i);
+			return dayHours;
+		}
+		$scope.dayHours = getDayHours();
+
+		$scope.tasksInDay = [];
+		for(var ii=0;ii<=19;ii++){
+			$scope.tasksInDay.push({i:ii,isCollapsed:false});
+		}
+		
+
+		$http({
+			method : 'GET',
+			url : '/read/prescribe_'+$scope.parameters.id
+		}).success(function(data, status, headers, config) {
+			$scope.prescribes = data;
+			console.log($scope.prescribes);
+			if(null == $scope.prescribes.tasks)
+				$scope.prescribes.tasks = [];
+		}).error(function(data, status, headers, config) {
+		});
+
+		$scope.isMinus = function(taskInDayIndex, $index){
+			if(!$scope.prescribes || !$scope.prescribes.tasks[taskInDayIndex]
+			|| !$scope.prescribes.tasks[taskInDayIndex].times
+			)
+				return false;
+			var lp24hour = getLp24hour($index);
+			console.log("-"+lp24hour);
+			console.log($scope.prescribes.tasks[taskInDayIndex].times.hours);
+			var isMinus = ('-' == $scope.prescribes.tasks[taskInDayIndex].times.hours[lp24hour]);
+			return isMinus;
+		}
+
+		$scope.getLp24hourStr = function(dayHour){
+			var lp24hour = getLp24hour(dayHour);
+			return (lp24hour>9?'':'0')+lp24hour;
+		}
+		getLp24hour= function(dayHour){
+			var lp24hour = dayHour + $scope.config.startHour24lp;
+			lp24hour = lp24hour>23?lp24hour-24:lp24hour;
+			return lp24hour;
+		}
+
+	}]);
+	</script>
+</body>
+</html>

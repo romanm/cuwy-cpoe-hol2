@@ -7,26 +7,24 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 	if(!$scope.parameters.id)
 		$scope.parameters.id = 0;
 
-	getDayHours = function(){
-		var dayHours = [];
-		for(var i=0;i<24;i++) dayHours.push(i);
-		return dayHours;
-	}
-
 	getDayHoursEmpty = function(){
 		var dayHours = [];
 		for(var i=0;i<24;i++) dayHours.push(null);
 		return dayHours;
 	}
 
+	getDayHours = function(){
+		var dayHours = [];
+		for(var i=0;i<24;i++) dayHours.push(i);
+		return dayHours;
+	}
+	$scope.dayHours = getDayHours();
 	$scope.config = config;
 	$scope.siteMap = config.siteMap.siteMaps[2];
-	$scope.dayHours = getDayHours();
-	var tasksInDay = [];
+	$scope.tasksInDay = [];
 	for(var ii=0;ii<19;ii++){
-		tasksInDay.push({i:ii,isCollapsed:false});
+		$scope.tasksInDay.push({i:ii,isCollapsed:false});
 	}
-	$scope.tasksInDay = tasksInDay;
 
 	$http({
 		method : 'GET',
@@ -35,6 +33,7 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		$scope.prescribes = data;
 		if(null == $scope.prescribes.tasks)
 			$scope.prescribes.tasks = [];
+		console.log($scope.prescribes);
 	}).error(function(data, status, headers, config) {
 	});
 
