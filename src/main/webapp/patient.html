@@ -27,7 +27,7 @@
 	<div class="row">
 		<div class="col-xs-12">
 			<div data-ng-repeat="prescribeHistory in patient.prescribesHistory"
-				data-ng-init="prescribeHistoryIndex = $index; initPrescribeHistory(prescribeHistoryIndex) "
+				data-ng-init="prescribeHistoryIndex = $index; "
 			>
 				<span title="{{prescribeHistory.date | date:'HH:mm:ss'}}"
 					data-ng-click="prescribeHistory.isCollapsed = !prescribeHistory.isCollapsed"

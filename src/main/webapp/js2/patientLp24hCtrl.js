@@ -294,19 +294,15 @@ $scope.menuTasksAll = [
 ];
 
 contextMenuPaste = function($itemScope){
-		console.log($itemScope.$parent.prescribeHistory);
 	$http({
 		method : 'GET',
 		url : '/session/paste'
 	}).success(function(data, status, headers, config) {
 		console.log(data);
-		console.log(data.selectMultiple);
 		if(data.selectMultiple && data.tasks){
-			console.log($itemScope.taskInDay);
 			var position = $itemScope.taskInDay.i;
 			$(data.tasks).each(function () {
 				if(this.selectMultiple){
-					console.log(this);
 					insertDrugToTask(this, position++, $itemScope.$parent.prescribeHistory);
 				}
 			});
@@ -316,11 +312,6 @@ contextMenuPaste = function($itemScope){
 		}
 	}).error(function(data, status, headers, config) {
 	});
-}
-
-$scope.initPrescribeHistory = function(prescribeHistoryIndex){
-	console.log("initPrescribeHistory");
-	console.log(prescribeHistoryIndex);
 }
 
 }]);
