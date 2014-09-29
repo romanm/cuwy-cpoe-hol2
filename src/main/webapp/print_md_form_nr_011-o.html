@@ -7,8 +7,9 @@
 	<style type="text/css">
 	@page
 		{
-			margin: 10mm 1mm 25mm 8mm;
+			margin: 10mm 1mm 25mm 11mm;
 		/*
+			margin: 10mm 1mm 25mm 8mm;
 		.form011oPatientName tr td {height:4mm}
 		*/
 		}
@@ -28,7 +29,11 @@
 	<tr>
 		<td style="width: 60mm;"></td>
 		<td style="width: 13mm;"></td>
-		<td style="width: 15mm;">01</td>
+		<td style="width: 15mm;">
+		<!-- 
+		01
+		 -->
+		</td>
 		<td style="width: 47mm;">
 		<span data-ng-show="!patient">
 		м
@@ -37,10 +42,14 @@
 		{{prescribeHistory.date | date:'dd-MM-yyyy '}}
 		</span>
 		</td>
-		<td style="width: 35mm;">14</td>
+		<td style="width: 35mm;">
+		<!-- 
+		14
+		 -->
+		</td>
 	</tr>
 </table>
-<div style="line-height:14mm">.
+<div style="line-height:14.5mm">.
 </div>
 <table class="form011oPatientName">
 	<tr>
@@ -53,7 +62,7 @@
 		<td>. 1</td>
 	</tr>
 </table>
-<div style="line-height:3mm">.
+<div style="line-height:1mm">.
 </div>
 <table class="form011o">
 	<colgroup>
