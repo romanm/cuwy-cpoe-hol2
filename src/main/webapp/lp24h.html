@@ -72,7 +72,7 @@
 			ng-init="taskInDayIndex = $index"
 		>
 			<tr data-ng-class="{selected:prescribes.tasks[$index].selectMultiple}">
-				<td class="hover" data-ng-click="selectMultiple($index)">
+				<td class="hover" data-ng-click="selectMultiple(taskInDayIndex)">
 					<u data-ng-show="prescribes.tasks.length == $index + 1">{{$index + 1}}</u>
 					<span data-ng-show="prescribes.tasks.length != $index + 1">{{$index + 1 }}</span>
 				</td>

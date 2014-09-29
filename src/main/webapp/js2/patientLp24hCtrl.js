@@ -52,6 +52,7 @@ cuwyApp.controller('patientLp24hCtrl', [ '$scope', '$http', function ($scope, $h
 		}).success(function(data, status, headers, config){
 			console.log(data);
 			$scope.prescribes = data;
+			$scope.numberOfChange = 0;
 		}).error(function(data, status, headers, config) {
 			$scope.error = data;
 		});
@@ -110,12 +111,12 @@ $scope.saveNewDrug = function(seekDrug){
 	});
 }
 
-$scope.drugToTask = function(drug, taskInDay, prescribeHistory){
-	var position = taskInDay.i;
-	insertDrugToTask(drug, position, prescribeHistory);
+$scope.drugToTask = function(drug, $itemScope){
+	var position = $itemScope.taskInDay.i;
+	insertDrugToTask(drug, position, $itemScope.$parent.prescribeHistory);
 	taskInDay.dialogTab = "dose";
 	readDrugDocument(drug);
-	$scope.editedPrescribeDrug =  prescribeHistory.prescribes.tasks[position];
+	$scope.editedPrescribeDrug =  $itemScope.$parent.prescribeHistory.prescribes.tasks[position];
 }
 
 insertDrugToTask = function(drug, position, prescribeHistory){
@@ -221,7 +222,6 @@ $scope.prescribeHoursRight = function(drugForEdit){
 	});
 }
 
-
 moveTo = function(arrayToSort, indexFrom, indexTo){
 	var el = arrayToSort.splice(indexFrom, 1);
 	arrayToSort.splice(indexTo, 0, el[0]);
@@ -246,47 +246,69 @@ moveMinus = function(arrayToSort, index){
 		moveTo(arrayToSort, 0, arrayToSort.length-1);
 	}
 }
+contextMenuCopy = function(copyObject){
+	$http({
+		method : 'POST',
+		data : copyObject,
+		url : "/session/copy"
+	}).success(function(data, status, headers, config){
+	}).error(function(data, status, headers, config) {
+		$scope.error = data;
+	});
+}
 
 $scope.menuTask = [
-	['Copy', function ($itemScope) { 
-		var drug = $itemScope.prescribes.tasks[$itemScope.$index];
+	['<i class="fa fa-copy"></i> Copy', function ($itemScope) { 
+		var drug = $itemScope.$parent.prescribeHistory.prescribes.tasks[$itemScope.$index];
 		console.log(drug);
 		console.log(drug.selectMultiple);
 		if(drug.selectMultiple){
-			$itemScope.prescribes.selectMultiple = true;
-			contextMenuCopy($itemScope.prescribes); 
+			$itemScope.$parent.prescribeHistory.prescribes.selectMultiple = true;
+			contextMenuCopy($itemScope.$parent.prescribeHistory.prescribes); 
 		}else{
 			contextMenuCopy(drug); 
 		}
 	}],
-	['Paste', function ($itemScope) { contextMenuPaste($itemScope); }],
+	['<i class="fa fa-paste"></i> Paste', function ($itemScope) { contextMenuPaste($itemScope); }],
 	null,
-	['Додати строчку', function ($itemScope) {
-		$itemScope.prescribes.tasks.splice($itemScope.$index, 0, null);
+	['<span class="glyphicon glyphicon-plus"></span> Додати строчку', function ($itemScope) {
+		$itemScope.$parent.prescribeHistory.prescribes.tasks.splice($itemScope.$index, 0, null);
 		$scope.numberOfChange++;
 	}],
-	['Видалити', function ($itemScope) {
-		$itemScope.prescribes.tasks.splice($itemScope.$index, 1);
+	['<span class="glyphicon glyphicon-remove"></span> Видалити', function ($itemScope) {
+		$itemScope.$parent.prescribeHistory.prescribes.tasks.splice($itemScope.$index, 1);
 		$scope.numberOfChange++;
 	}],
 	null,
 	['<span class="glyphicon glyphicon-arrow-up"></span> Догори', function ($itemScope) {
-		moveMinus($itemScope.prescribes.tasks, $itemScope.$index);
+		moveMinus($itemScope.$parent.prescribeHistory.prescribes.tasks, $itemScope.$index);
 	}],
 	['<span class="glyphicon glyphicon-arrow-down"></span> Донизу', function ($itemScope) {
-		movePlus($itemScope.prescribes.tasks, $itemScope.$index + 1);
+		movePlus($itemScope.$parent.prescribeHistory.prescribes.tasks, $itemScope.$index + 1);
 	}]
 ];
 $scope.menuTasksAll = [
-	['Copy', function ($itemScope) { contextMenuCopy($itemScope.prescribes); }],
-	['Paste', function ($itemScope) { 
+	['<i class="fa fa-copy"></i> Copy', function ($itemScope) { 
+		contextMenuCopy($itemScope.prescribeHistory.prescribes); 
+	}],
+	['<i class="fa fa-paste"></i> Paste', function ($itemScope) { 
 		$http({
 			method : 'GET',
 			url : '/session/paste'
 		}).success(function(data, status, headers, config) {
-			if($scope.prescribes.tasks.length == 0){
-				$scope.prescribes.tasks = data.tasks;
-				$scope.numberOfChange += $scope.prescribes.tasks.length;
+			console.log($itemScope.prescribeHistory.prescribes);
+			console.log($itemScope.prescribeHistory.prescribes.tasks.length);
+			if($itemScope.prescribeHistory.prescribes.tasks.length == 0){
+				$itemScope.prescribeHistory.prescribes.tasks = data.tasks;
+				$scope.numberOfChange += $itemScope.prescribeHistory.prescribes.tasks.length;
+			}else{
+				console.log(data.tasks);
+				console.log(data.tasks.length);
+				if(data.tasks.length + $itemScope.prescribeHistory.prescribes.tasks.length < 19){
+					console.log("add");
+					$itemScope.prescribeHistory.prescribes.tasks.push
+					.apply($itemScope.prescribeHistory.prescribes.tasks, data.tasks);
+				}
 			}
 		}).error(function(data, status, headers, config) {
 		});
@@ -308,10 +330,19 @@ contextMenuPaste = function($itemScope){
 			});
 		}else{
 			var drug = data;
-			$scope.drugToTask(drug, $itemScope.taskInDay, $itemScope.$parent.prescribeHistory);
+			$scope.drugToTask(drug, $itemScope);
 		}
 	}).error(function(data, status, headers, config) {
 	});
+}
+
+$scope.selectMultiple = function(taskInDayIndex, prescribeHistory){
+	console.log("selectMultiple");
+	console.log(prescribeHistory.prescribes.tasks);
+	if(null == prescribeHistory.prescribes.tasks[taskInDayIndex]){
+		prescribeHistory.prescribes.tasks[taskInDayIndex] = {};
+	}
+	prescribeHistory.prescribes.tasks[taskInDayIndex].selectMultiple = !prescribeHistory.prescribes.tasks[taskInDayIndex].selectMultiple;
 }
 
 }]);
