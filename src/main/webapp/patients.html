@@ -12,6 +12,19 @@
 <hr/>
 <div class="container">
 	<div class="row">
+		<div class="col-xs-12">
+			<span class="navbar-right">
+				<a href="#" data-ng-click="patientListOrArchive = false; seekPatient = ''">
+					Список пацієнтів
+				</a>
+				|
+				<a href="#" data-ng-click="patientListOrArchive = true; seekPatient = ''">
+					Архів
+				</a>
+			</span>
+		</div>
+	</div>
+	<div class="row">
 		<div class="col-xs-6">
 			<div class="input-group">
 				<span class="input-group-addon">Пошук:</span>
@@ -38,7 +51,7 @@
 				 -->
 				<th>ПІБ, Поступив, Діагноз </th>
 				</tr></thead>
-				<tbody data-ng-repeat="patient in patient1sList | filter: seekPatient | limitTo : 12">
+				<tbody data-ng-repeat="patient in patient1sList| filter: {PATIENT_ARCHIVE:patientListOrArchive} | filter: seekPatient | limitTo : 12">
 					<tr>
 					<td>{{patient.PATIENT_ID}}</td>
 					<td ng-context-menu="menuPatientList" ng-show="!patient.patientUpdateOpen">
@@ -84,10 +97,11 @@
 	<script src="/db/patient1sList.json.js"></script>
 	<script type="text/javascript">
 	//var cuwyApp = angular.module('cuwyApp', ['ui.bootstrap']);
-	cuwyApp.controller('patientsCtrl', [ '$scope', '$http', function ($scope, $http) {
+	cuwyApp.controller('patientsCtrl', [ '$scope', '$http', '$location', function ($scope, $http, $location) {
 		console.log("patientsCtrl");
 		$scope.siteMap = config.siteMap.siteMaps[0];
 		$scope.patient1sList = patient1sList;
+		$scope.patientListOrArchive = false;
 
 		$scope.saveNewPatient = function(){
 			console.log("saveNewPatient");
@@ -120,16 +134,19 @@
 			$itemScope.patient.patientUpdateOpen = !$itemScope.patient.patientUpdateOpen;
 		}],
 		null,
-		['<span class="glyphicon glyphicon-floppy-remove"></span> Видалити з БД', function ($itemScope) {
+		['<span class="glyphicon glyphicon-floppy-remove"></span> Перевести в архів', function ($itemScope) {
 			console.debug('delete');
 			console.debug($itemScope);
 			console.debug($itemScope.patient);
-			postPatient('/archivePatient', $itemScope.patient);
+			$itemScope.patient.PATIENT_ARCHIVE = !$scope.patientListOrArchive;
+			postPatient('/updatePatient', $itemScope.patient);
+//			postPatient('/archivePatient', $itemScope.patient);
 		}],
 		['<span class="glyphicon glyphicon-floppy-open"></span> Відкрити пацієнт документ', function ($itemScope) {
 			console.debug('Edit');
 			console.log($itemScope);
-			$itemScope.patient.patientUpdateOpen = !$itemScope.patient.patientUpdateOpen;
+			console.log($itemScope.patient.PATIENT_ID);
+			window.location.href = '/patient.html?id='+$itemScope.patient.PATIENT_ID;
 		}]
 		];
 

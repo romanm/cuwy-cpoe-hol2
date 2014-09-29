@@ -102,9 +102,11 @@ public class CuwyCpoeHolDb2 {
 
 	public int updatePatient(Map<String, Object> patientToUpdate) {
 		String patientName = (String) patientToUpdate.get("PATIENT_NAME");
+		Boolean patientArchive = (Boolean) patientToUpdate.get("PATIENT_ARCHIVE");
 		Integer patientId = (Integer) patientToUpdate.get("PATIENT_ID");
-		int update = this.jdbcTemplate.update("update patient1 set patient_name = ? where patient_id = ?",
-				patientName, patientId);
+		int update = this.jdbcTemplate.update(
+				"update patient1 set patient_name = ?, patient_archive = ? where patient_id = ?",
+				patientName, patientArchive, patientId);
 		return update;
 	}
 	public int removePatient(Map<String, Object> removePatient) {
