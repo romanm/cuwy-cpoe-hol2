@@ -111,14 +111,6 @@ $scope.saveNewDrug = function(seekDrug){
 	});
 }
 
-$scope.drugToTask = function(drug, $itemScope){
-	var position = $itemScope.taskInDay.i;
-	insertDrugToTask(drug, position, $itemScope.$parent.prescribeHistory);
-	taskInDay.dialogTab = "dose";
-	readDrugDocument(drug);
-	$scope.editedPrescribeDrug =  $itemScope.$parent.prescribeHistory.prescribes.tasks[position];
-}
-
 insertDrugToTask = function(drug, position, prescribeHistory){
 	var addNull = position - prescribeHistory.prescribes.tasks.length;
 	if(addNull > 0){
@@ -269,7 +261,10 @@ $scope.menuTask = [
 			contextMenuCopy(drug); 
 		}
 	}],
-	['<i class="fa fa-paste"></i> Paste', function ($itemScope) { contextMenuPaste($itemScope); }],
+	['<i class="fa fa-paste"></i> Paste', function ($itemScope) { 
+		$itemScope.$parent.prescribeHistory.prescribes.tasks.splice($itemScope.$index, 0, null);
+		contextMenuPaste($itemScope); 
+	}],
 	null,
 	['<span class="glyphicon glyphicon-plus"></span> Додати строчку', function ($itemScope) {
 		$itemScope.$parent.prescribeHistory.prescribes.tasks.splice($itemScope.$index, 0, null);
@@ -336,10 +331,26 @@ contextMenuPaste = function($itemScope){
 			});
 		}else{
 			var drug = data;
-			$scope.drugToTask(drug, $itemScope);
+			drugToTask(drug, $itemScope);
 		}
 	}).error(function(data, status, headers, config) {
 	});
+}
+$scope.drugToTask2 = function(drug, taskInDay, prescribeHistory){
+	var position = taskInDay.i;
+	insertDrugToTask(drug, position, prescribeHistory);
+	taskInDay.dialogTab = "dose";
+	readDrugDocument(drug);
+	$scope.editedPrescribeDrug =  prescribeHistory.prescribes.tasks[position];
+}
+drugToTask = function(drug, $itemScope){
+	$scope.drugToTask2(drug, $itemScope.taskInDay, $itemScope.$parent.prescribeHistory)
+}
+
+
+$scope.collapseDayPrescribe = function(prescribeHistory){
+	prescribeHistory.isCollapsed = !prescribeHistory.isCollapsed
+	$scope.numberOfChange++;
 }
 
 $scope.selectMultiple = function(taskInDayIndex, prescribeHistory){

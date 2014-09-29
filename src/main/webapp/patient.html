@@ -31,7 +31,7 @@
 				data-ng-init="prescribeHistoryIndex = $index; "
 			>
 				<span title="{{prescribeHistory.date | date:'HH:mm:ss'}}"
-					data-ng-click="prescribeHistory.isCollapsed = !prescribeHistory.isCollapsed"
+					data-ng-click="collapseDayPrescribe(prescribeHistory)"
 				>
 				{{prescribeHistory.date | date:'dd-MM-yyyy '}}
 				<small>
@@ -53,7 +53,7 @@
  -->
 				</span>
 				<a href="#"
-					data-ng-click="prescribeHistory.isCollapsed = !prescribeHistory.isCollapsed"
+					data-ng-click="collapseDayPrescribe(prescribeHistory)"
 				>
 					<span class="glyphicon glyphicon-folder-{{!prescribeHistory.isCollapsed?'open':'close'}}"></span>
 				</a>
@@ -159,7 +159,7 @@
 						</button>
 						<div>
 						<div data-ng-repeat="drug in drug1sList | filter: seekDrug | limitTo : 12">
-							<a ng-click="drugToTask(drug, taskInDay, prescribeHistory)">
+							<a ng-click="drugToTask2(drug, taskInDay, prescribeHistory)">
 							{{drug.DRUG_NAME}}
 							{{$index}}
 							</a>
