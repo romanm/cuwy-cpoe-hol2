@@ -288,8 +288,8 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		}]
 	];
 	$scope.menuTasksAll = [
-		['Copy', function ($itemScope) { contextMenuCopy($itemScope.prescribes); }],
-		['Paste', function ($itemScope) { 
+		['<i class="fa fa-copy"></i> Copy', function ($itemScope) { contextMenuCopy($itemScope.prescribes); }],
+		['<i class="fa fa-paste"></i> Paste', function ($itemScope) { 
 			$http({
 				method : 'GET',
 				url : '/session/paste'
@@ -303,7 +303,7 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		}]
 	];
 	$scope.menuTask = [
-		['Copy', function ($itemScope) { 
+		['<i class="fa fa-copy"></i> Copy', function ($itemScope) { 
 			var drug = $itemScope.prescribes.tasks[$itemScope.$index];
 			console.log(drug);
 			console.log(drug.selectMultiple);
@@ -314,13 +314,13 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 				contextMenuCopy(drug); 
 			}
 		}],
-		['Paste', function ($itemScope) { contextMenuPaste($itemScope); }],
+		['<i class="fa fa-paste"></i> Paste', function ($itemScope) { contextMenuPaste($itemScope); }],
 		null,
-		['Додати строчку', function ($itemScope) {
+		['<span class="glyphicon glyphicon-plus"></span> Додати строчку', function ($itemScope) {
 			$itemScope.prescribes.tasks.splice($itemScope.$index, 0, null);
 			$scope.numberOfChange++;
 		}],
-		['Видалити', function ($itemScope) {
+		['<span class="glyphicon glyphicon-remove"></span> Видалити', function ($itemScope) {
 			$itemScope.prescribes.tasks.splice($itemScope.$index, 1);
 			$scope.numberOfChange++;
 		}],
@@ -330,6 +330,12 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		}],
 		['<span class="glyphicon glyphicon-arrow-down"></span> Донизу', function ($itemScope) {
 			movePlus($itemScope.prescribes.tasks, $itemScope.$index + 1);
+		}],
+		null,
+		['<i class="fa fa-reply-all"></i> скасувати вибір', function ($itemScope) {
+			$($itemScope.prescribes.tasks).each(function () {
+				this.selectMultiple = false;
+			});
 		}]
 	];
 
