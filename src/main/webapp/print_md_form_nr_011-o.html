@@ -4,6 +4,7 @@
 	<meta charset="utf-8" />
 	<title>{{siteMap.title}}</title>
 	<link href="/css/bootstrap.css1" rel="stylesheet"/>
+	<link href='/css/font-awesome.min.css' rel='stylesheet prefetch'/>
 	<style type="text/css">
 	@page
 		{
@@ -87,10 +88,15 @@
 			</span>
 		</td>
 		<td data-ng-repeat="dayHour in dayHours">.
+		<!-- 
 			<span 
 				data-ng-show="isMinus(taskInDayIndex, $index)"
 				class="glyphicon glyphicon-minus"></span>
-			<b data-ng-show="isMinus(taskInDayIndex, $index)">--</b>
+			<b data-ng-show="isMinus(taskInDayIndex, $index)">-.-</b>
+		 -->
+			<i
+				data-ng-show="isMinus(taskInDayIndex, $index)"
+			 class="fa fa-minus"></i>
 		</td>
 		<td>.</td>
 	</tr>

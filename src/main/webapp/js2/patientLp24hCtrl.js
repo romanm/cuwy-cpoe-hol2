@@ -285,6 +285,12 @@ $scope.menuTask = [
 	}],
 	['<span class="glyphicon glyphicon-arrow-down"></span> Донизу', function ($itemScope) {
 		movePlus($itemScope.$parent.prescribeHistory.prescribes.tasks, $itemScope.$index + 1);
+	}],
+	null,
+	['<i class="fa fa-reply-all"></i> скасувати вибір', function ($itemScope) {
+		$($itemScope.$parent.prescribeHistory.prescribes.tasks).each(function () {
+			this.selectMultiple = false;
+		});
 	}]
 ];
 $scope.menuTasksAll = [
