@@ -250,7 +250,7 @@ contextMenuCopy = function(copyObject){
 }
 
 $scope.menuTask = [
-	['<i class="fa fa-copy"></i> Copy', function ($itemScope) { 
+	['<i class="fa fa-copy"></i> Копіювати', function ($itemScope) { 
 		var drug = $itemScope.$parent.prescribeHistory.prescribes.tasks[$itemScope.$index];
 		console.log(drug);
 		console.log(drug.selectMultiple);
@@ -261,7 +261,7 @@ $scope.menuTask = [
 			contextMenuCopy(drug); 
 		}
 	}],
-	['<i class="fa fa-paste"></i> Paste', function ($itemScope) { 
+	['<i class="fa fa-paste"></i> Вставити', function ($itemScope) { 
 		$itemScope.$parent.prescribeHistory.prescribes.tasks.splice($itemScope.$index, 0, null);
 		contextMenuPaste($itemScope); 
 	}],
@@ -282,17 +282,17 @@ $scope.menuTask = [
 		movePlus($itemScope.$parent.prescribeHistory.prescribes.tasks, $itemScope.$index + 1);
 	}],
 	null,
-	['<i class="fa fa-reply-all"></i> скасувати вибір', function ($itemScope) {
+	['<i class="fa fa-reply-all"></i> Скасувати вибір', function ($itemScope) {
 		$($itemScope.$parent.prescribeHistory.prescribes.tasks).each(function () {
 			this.selectMultiple = false;
 		});
 	}]
 ];
 $scope.menuTasksAll = [
-	['<i class="fa fa-copy"></i> Copy', function ($itemScope) { 
+	['<i class="fa fa-copy"></i> Копіювати', function ($itemScope) { 
 		contextMenuCopy($itemScope.prescribeHistory.prescribes); 
 	}],
-	['<i class="fa fa-paste"></i> Paste', function ($itemScope) { 
+	['<i class="fa fa-paste"></i> Вставити', function ($itemScope) { 
 		$http({
 			method : 'GET',
 			url : '/session/paste'

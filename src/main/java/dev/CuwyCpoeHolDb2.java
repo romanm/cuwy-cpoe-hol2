@@ -12,11 +12,12 @@ import org.springframework.stereotype.Component;
 public class CuwyCpoeHolDb2 {
 
 	private JdbcTemplate jdbcTemplate;
-
+	
 	public CuwyCpoeHolDb2() {
 		SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
 		dataSource.setDriverClass(Driver.class);
 		dataSource.setUrl("jdbc:h2:file:~/01_curepathway/h2-db-server/cuwy-cpoe-hol1");
+//		dataSource.setUrl("jdbc:h2:file:C:\\opt\\hol-vait\\db-h2\\cuwy-cpoe-hol1");
 		dataSource.setUsername("sa");
 //		dataSource.setPassword("");
 		this.jdbcTemplate = new JdbcTemplate(dataSource);

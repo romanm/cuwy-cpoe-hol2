@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html data-ng-app="form011oApp" data-ng-controller="form011oCtrl">
+<head>
+	<meta charset="utf-8" />
+	<title>{{siteMap.title}}</title>
+	<link href='/css/font-awesome.min.css' rel='stylesheet prefetch'/>
+	<style type="text/css">
+	@page
+		{
+			margin: 10mm 1mm 25mm 11mm;
+		}
+	col.nameCol{ width: 50mm; }
+	col.hourCol{ width: 8mm; }
+	.uppercase {
+		text-transform: uppercase;
+	}
+	.bold {
+		font-weight: bold;
+	}
+	table {
+		border-collapse: collapse;
+	}
+	td, th {
+		border: solid;
+		border-width: 1px 1px;
+	}
+	.fontsmall {
+		font-size: 75%;
+	}
+	</style>
+</head>
+<body>
+<table>
+	<colgroup>
+		<col/>
+		<col style="width: 80mm;"/>
+		<col style="width: 30mm"/>
+		<col/>
+		<col/>
+	</colgroup>
+	<tr>
+		<td style="text-align: center;
+vertical-align: text-top;
+font-size: 75%;">
+		Міністерство охорони здоров'я України
+		</td>
+		<td style="text-align: center;">
+		Дата
+		<u>
+			{{prescribeHistory.date | date:'" dd "   MMMM   yyyy р.'}}
+		</u>
+		</td>
+		<td colspan="3" style="text-align: center;">
+			<div class="bold">
+				<span class="uppercase">
+				Медична документація
+				</span>
+				<i>
+				- Форма Nr 011/о
+				</i>
+			</div>
+			<span class="fontsmall">
+			Затверджена МОЗ України 26.07.99 р. Nr 184, доповнена
+			</span>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="5" class="bold uppercase">
+		Листок основних показників стану хворого, який знаходиться в відділенні інтенсивної терапії
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3">
+		П.І.П.
+		<u class="bold">
+			{{patient.PATIENT_NAME}}
+		</u>
+		</td>
+		<td>Nr медичної карти</td>
+		<td>Дієта</td>
+	</tr>
+</table>
+<table class="form011o">
+	<caption>
+	
+	</caption>
+	<colgroup>
+		<col class="hourCol"></col>
+		<col class=""></col>
+		<col style="width: 38mm;"></col>
+		<col class=""></col>
+		<col class="hourCol" data-ng-repeat="dayHour in dayHours"></col>
+		<col class="hourCol"></col>
+	</colgroup>
+	<tr>
+		<th colspan="4">Призначене лікування</th>
+		<th data-ng-repeat="dayHour in dayHours"
+			data-ng-init="lpHour = getLp24hourStr(dayHour)"
+		>
+			{{lpHour}}
+		</th>
+		<th>08</th>
+	</tr>
+	<tr data-ng-repeat="taskInDay in tasksInDay"
+		data-ng-init="taskInDayIndex = $index"
+	>
+		<td></td>
+		<td colspan="3">
+			<span data-ng-show="prescribes.tasks[$index].DRUG_NAME == null">.</span>
+			{{prescribes.tasks[$index].DRUG_NAME == null ? "":prescribes.tasks[$index].DRUG_NAME}}
+			<small data-ng-show="prescribes.tasks[$index].dose.DOSECONCENTRATON_NUMBER">
+				{{prescribes.tasks[$index].dose.DOSECONCENTRATON_NUMBER}}{{prescribes.tasks[$index].dose.DOSECONCENTRATON_UNIT}}
+			</small>
+			<span>
+				{{prescribes.tasks[$index].dose.DOSE_NUMBER}}
+				{{prescribes.tasks[$index].dose.DOSE_UNIT}}
+				{{prescribes.tasks[$index].dose.DOSE_ROUTE_OF_ADMINISTRATION}}
+			</span>
+		</td>
+		<td data-ng-repeat="dayHour in dayHours">
+			<i data-ng-show="isMinus(taskInDayIndex, $index)" class="fa fa-minus"></i>
+		</td>
+		<td data-ng-show="taskInDayIndex == 0" rowspan="14" style="transform: rotate(-90deg);">
+		М
+		</td>
+		<td data-ng-show="taskInDayIndex == 14" rowspan="7" style="transform: rotate(-90deg);">
+		С
+		</td>
+	</tr>
+	<tr class="fontsmall">
+		<td colspan="2"></td>
+		<td></td>
+		<td>SpO<sub>2</sub></td>
+		<td data-ng-repeat="dayHour in dayHours">
+		</td>
+	</tr>
+	<tr class="fontsmall">
+		<td class="bold" colspan="2">В/в введено</td>
+		<td></td>
+		<td>АТ, mm Hg</td>
+		<td data-ng-repeat="dayHour in dayHours">
+		</td>
+		<td rowspan="6" style="transform: rotate(-90deg);">
+		П
+		<!-- 
+		<div style="transform: rotate(-90deg); text-transform: uppercase; z-index: 1">
+		Показники
+		</div>
+		 -->
+		</td>
+	</tr>
+	<tr class="fontsmall">
+		<td class="bold" colspan="2">3% KCl</td>
+		<td></td>
+		<td>ЧСС, уд/хв</td>
+		<td data-ng-repeat="dayHour in dayHours">
+		</td>
+	</tr>
+	<tr class="fontsmall">
+		<td class="bold" colspan="2">Компоненти крові</td>
+		<td></td>
+		<td>t°C</td>
+		<td data-ng-repeat="dayHour in dayHours">
+		</td>
+	</tr>
+	<tr class="fontsmall">
+		<td class="bold" colspan="2">Діурез</td>
+		<td></td>
+		<td>ЦВТ, мм вод</td>
+		<td data-ng-repeat="dayHour in dayHours">
+		</td>
+	</tr>
+	<tr class="fontsmall">
+		<td class="bold" colspan="2">З дренажів</td>
+		<td></td>
+		<td>ДІУРЕЗ, мл</td>
+		<td data-ng-repeat="dayHour in dayHours">
+		</td>
+	</tr>
+	<tr class="fontsmall">
+		<td class="bold" colspan="2">Зі шлунку</td>
+		<td></td>
+		<td>ЧД, дих/хв</td>
+		<td data-ng-repeat="dayHour in dayHours">
+		</td>
+	</tr>
+</table>
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/angular.min.js"></script>
+	<script src="/js2/cuwy1.config.js"></script>
+	<script type="text/javascript">
+	parameters = {};
+	if(window.location.search){
+		$.each(window.location.search.split("?")[1].split("&"), function(index, value){
+			var par = value.split("=");
+			parameters[par[0]] = par[1];
+		});
+	}
+
+	angular.module('form011oApp', []).controller('form011oCtrl',['$scope', '$http', function($scope, $http) {
+		console.log("----------form011oCtrl----------");
+		$scope.config = config;
+		$scope.parameters = parameters;
+		if(!$scope.parameters.id)
+			$scope.parameters.id = 0;
+
+		getDayHours = function(){
+			var dayHours = [];
+			for(var i=0;i<24;i++) dayHours.push(i);
+			return dayHours;
+		}
+		$scope.dayHours = getDayHours();
+
+		$scope.tasksInDay = [];
+		for(var ii=0;ii<=19;ii++){
+			$scope.tasksInDay.push({i:ii,isCollapsed:false});
+		}
+		
+
+		console.log("$scope.parameters");
+		console.log($scope.parameters);
+
+		if($scope.parameters.pid){
+				console.log("----------");
+			$http({
+				method : 'GET',
+				url : '/read/patient_'+$scope.parameters.pid
+			}).success(function(data, status, headers, config) {
+				console.log(data);
+				$scope.patient = data;
+				$scope.prescribeHistory = data.prescribesHistory[$scope.parameters.phi];
+				$scope.prescribes = $scope.prescribeHistory.prescribes;
+				console.log($scope.prescribes);
+			}).error(function(data, status, headers, config) {
+			});
+		}else{
+			$http({
+				method : 'GET',
+				url : '/read/prescribe_'+$scope.parameters.id
+			}).success(function(data, status, headers, config) {
+				$scope.prescribes = data;
+				console.log($scope.prescribes);
+				if(null == $scope.prescribes.tasks)
+					$scope.prescribes.tasks = [];
+			}).error(function(data, status, headers, config) {
+			});
+		}
+
+		$scope.isMinus = function(taskInDayIndex, $index){
+			if(!$scope.prescribes || !$scope.prescribes.tasks[taskInDayIndex]
+			|| !$scope.prescribes.tasks[taskInDayIndex].times
+			)
+				return false;
+			var lp24hour = getLp24hour($index);
+			var isMinus = ('-' == $scope.prescribes.tasks[taskInDayIndex].times.hours[lp24hour]);
+			return isMinus;
+		}
+
+		$scope.getLp24hourStr = function(dayHour){
+			var lp24hour = getLp24hour(dayHour);
+			return (lp24hour>9?'':'0')+lp24hour;
+		}
+		getLp24hour= function(dayHour){
+			var lp24hour = dayHour + $scope.config.startHour24lp;
+			lp24hour = lp24hour>23?lp24hour-24:lp24hour;
+			return lp24hour;
+		}
+
+	}]);
+	</script>
+</body>
+</html>

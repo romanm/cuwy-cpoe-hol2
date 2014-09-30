@@ -273,6 +273,8 @@ public class GreetingController {
 	private String protocolOrder1sListJsFileName = "protocolOrder1sList.json.js";
 	private String patient1sListJsFileName = "patient1sList.json.js";
 	private String drug1sListJsFileName = "drug1sList.json.js";
+//	String applicationFolderPfad = "C:\\opt\\hol-vait\\";
+//	String innerDbFolderPfad = "src\\main\\webapp\\db\\";
 	String applicationFolderPfad = "/home/roman/Documents/01_curepathway/work3/cuwy-cpoe-hol2/";
 	String innerDbFolderPfad = "src/main/webapp/db/";
 
