@@ -200,6 +200,9 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 
 	$scope.devPost = function(){
 		$scope.prescribes.editPrescribesName = false;
+		$($scope.tasksInDay).each(function () {
+			this.isCollapsed = false;
+		} );
 		$http({
 			method : 'POST',
 			data : $scope.prescribes,
@@ -288,8 +291,8 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		}]
 	];
 	$scope.menuTasksAll = [
-		['<i class="fa fa-copy"></i> Copy', function ($itemScope) { contextMenuCopy($itemScope.prescribes); }],
-		['<i class="fa fa-paste"></i> Paste', function ($itemScope) { 
+		['<i class="fa fa-copy"></i> Копіювати', function ($itemScope) { contextMenuCopy($itemScope.prescribes); }],
+		['<i class="fa fa-paste"></i> Вставити', function ($itemScope) { 
 			$http({
 				method : 'GET',
 				url : '/session/paste'
@@ -303,7 +306,7 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		}]
 	];
 	$scope.menuTask = [
-		['<i class="fa fa-copy"></i> Copy', function ($itemScope) { 
+		['<i class="fa fa-copy"></i> Копіювати', function ($itemScope) { 
 			var drug = $itemScope.prescribes.tasks[$itemScope.$index];
 			console.log(drug);
 			console.log(drug.selectMultiple);
@@ -314,7 +317,7 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 				contextMenuCopy(drug); 
 			}
 		}],
-		['<i class="fa fa-paste"></i> Paste', function ($itemScope) { contextMenuPaste($itemScope); }],
+		['<i class="fa fa-paste"></i> Вставити', function ($itemScope) { contextMenuPaste($itemScope); }],
 		null,
 		['<span class="glyphicon glyphicon-plus"></span> Додати строчку', function ($itemScope) {
 			$itemScope.prescribes.tasks.splice($itemScope.$index, 0, null);

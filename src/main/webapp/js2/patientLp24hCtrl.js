@@ -39,19 +39,26 @@ cuwyApp.controller('patientLp24hCtrl', [ '$scope', '$http', function ($scope, $h
 	$scope.newPrescribes = function(){
 		console.log("---newPrescribes------------------");
 		var today = new Date();
-		var prescrebeHistory = {date:today, prescribes:{tasks:[]}}
-		prescrebeHistory.tasksInDay = getTasksInDay();
-		$scope.patient.prescribesHistory.splice(0, 0, prescrebeHistory);
+		var prescribeHistory = {date:today, prescribes:{tasks:[]}}
+		prescribeHistory.tasksInDay = getTasksInDay();
+		$scope.patient.prescribesHistory.splice(0, 0, prescribeHistory);
 	}
 	$scope.savePatient = function(){
 		console.log("--------devPost-----------");
+			console.log($scope.patient);
+			$($scope.patient.prescribesHistory).each(function () {
+				this.tasksInDay = null;
+			} );
 		$http({
 			method : 'POST',
 			data : $scope.patient,
 			url : "/save/patient"
 		}).success(function(data, status, headers, config){
 			console.log(data);
-			$scope.prescribes = data;
+			$scope.patient = data;
+			$($scope.patient.prescribesHistory).each(function () {
+				this.tasksInDay = getTasksInDay();
+			} );
 			$scope.numberOfChange = 0;
 		}).error(function(data, status, headers, config) {
 			$scope.error = data;
@@ -94,6 +101,7 @@ readDrugDocument = function(drug){
 		url : '/read/drug_'+drug.DRUG_ID
 	}).success(function(data, status, headers, config) {
 		$scope.drugDocument = data;
+		console.log($scope.drugDocument);
 	}).error(function(data, status, headers, config) {
 		$scope.drugDocument = null;
 	});
@@ -361,6 +369,38 @@ $scope.selectMultiple = function(taskInDayIndex, prescribeHistory){
 	}
 	prescribeHistory.prescribes.tasks[taskInDayIndex].selectMultiple = !prescribeHistory.prescribes.tasks[taskInDayIndex].selectMultiple;
 }
+
+//----------------drug document----------------------------
+$scope.newDrugDocumentDose = {};
+$scope.addNewDrugDocumentDose = function(){
+	$scope.newDrugDocumentDose.DOSE_ID = $scope.drugDocument.localIdSequence++;
+	if(null == $scope.drugDocument.doses)
+		$scope.drugDocument.doses = [];
+	console.log($scope.drugDocument);
+	$scope.drugDocument.doses.push($scope.newDrugDocumentDose);
+	$scope.addDoseToPrescribeDrug($scope.newDrugDocumentDose);
+	saveDrugDocument();
+	$scope.newDrugDocumentDose = {};
+	$scope.numberOfChange++;
+};
+
+saveDrugDocument = function(){
+	console.log("--------devPost-----------");
+	console.log($scope.drugDocument);
+	console.log($scope.drugDocument.localIdSequence);
+	$http({
+		method : 'POST',
+		data : $scope.drugDocument,
+		url : "/save/drug"
+	}).success(function(data, status, headers, config){
+		$scope.drugDocument = data;
+		console.log($scope.drugDocument);
+		console.log($scope.drugDocument.localIdSequence);
+	}).error(function(data, status, headers, config) {
+		$scope.error = data;
+	});
+}
+//---------------------drug document---------------------END-------
 
 }]);
 
