@@ -326,8 +326,18 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 			$scope.numberOfChange++;
 		}],
 		['<span class="glyphicon glyphicon-remove"></span> Видалити', function ($itemScope) {
-			$itemScope.prescribes.tasks.splice($itemScope.$index, 1);
-			$scope.numberOfChange++;
+			var isMultipleSelect = false;
+			for(var i=$itemScope.prescribes.tasks.length-1;i>=0;i--){
+				if($itemScope.prescribes.tasks[i] && $itemScope.prescribes.tasks[i].selectMultiple){
+					$itemScope.prescribes.tasks.splice(i, 1);
+					isMultipleSelect = true;
+					$scope.numberOfChange++;
+				}
+			}
+			if(!isMultipleSelect){
+				$itemScope.prescribes.tasks.splice($itemScope.$index, 1);
+				$scope.numberOfChange++;
+			}
 		}],
 		null,
 		['<span class="glyphicon glyphicon-arrow-up"></span> Догори', function ($itemScope) {

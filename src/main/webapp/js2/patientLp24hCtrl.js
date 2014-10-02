@@ -283,8 +283,20 @@ $scope.menuTask = [
 		$scope.numberOfChange++;
 	}],
 	['<span class="glyphicon glyphicon-remove"></span> Видалити', function ($itemScope) {
-		$itemScope.$parent.prescribeHistory.prescribes.tasks.splice($itemScope.$index, 1);
-		$scope.numberOfChange++;
+		var isMultipleSelect = false;
+		for(var i=$itemScope.$parent.prescribeHistory.prescribes.tasks.length-1;i>=0;i--){
+			if($itemScope.$parent.prescribeHistory.prescribes.tasks[i] 
+			&& $itemScope.$parent.prescribeHistory.prescribes.tasks[i].selectMultiple
+			){
+				$itemScope.$parent.prescribeHistory.prescribes.tasks.splice(i, 1);
+				isMultipleSelect = true;
+				$scope.numberOfChange++;
+			}
+		}
+		if(!isMultipleSelect){
+			$itemScope.$parent.prescribeHistory.prescribes.tasks.splice($itemScope.$index, 1);
+			$scope.numberOfChange++;
+		}
 	}],
 	null,
 	['<span class="glyphicon glyphicon-arrow-up"></span> Догори', function ($itemScope) {
