@@ -214,13 +214,15 @@ cuwyApp.controller('lp24hCtrl', [ '$scope', '$http', function ($scope, $http) {
 		});
 	}
 
-	$scope.saveNewDrug = function(seekDrug){
+	$scope.saveNewDrug = function(seekDrug, taskInDay){
 		$http({
 			method : 'POST',
 			data : {"DRUG_NAME":seekDrug},
 			url : '/saveNewDrug'
 		}).success(function(data, status, headers, config){
 			$scope.drug1sList = data;
+			var newDrug = $scope.drug1sList[$scope.drug1sList.length-1];
+			$scope.drugToTask(newDrug, taskInDay);
 		}).error(function(data, status, headers, config) {
 			$scope.error = data;
 		});

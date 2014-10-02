@@ -22,4 +22,43 @@ var drug1sList = [ {
 }, {
   "DRUG_ID" : 33,
   "DRUG_NAME" : "Стерофундин"
+}, {
+  "DRUG_ID" : 36,
+  "DRUG_NAME" : "jj"
+}, {
+  "DRUG_ID" : 37,
+  "DRUG_NAME" : "vit C"
+}, {
+  "DRUG_ID" : 38,
+  "DRUG_NAME" : "Фленокс"
+}, {
+  "DRUG_ID" : 39,
+  "DRUG_NAME" : "Цефториден"
+}, {
+  "DRUG_ID" : 40,
+  "DRUG_NAME" : "Пантосан"
+}, {
+  "DRUG_ID" : 41,
+  "DRUG_NAME" : "Омипразол"
+}, {
+  "DRUG_ID" : 42,
+  "DRUG_NAME" : "Еуфілін"
+}, {
+  "DRUG_ID" : 43,
+  "DRUG_NAME" : "Трифас"
+}, {
+  "DRUG_ID" : 44,
+  "DRUG_NAME" : "Лазікс"
+}, {
+  "DRUG_ID" : 45,
+  "DRUG_NAME" : "Церукал"
+}, {
+  "DRUG_ID" : 46,
+  "DRUG_NAME" : "Актропід"
+}, {
+  "DRUG_ID" : 48,
+  "DRUG_NAME" : "Кетонов"
+}, {
+  "DRUG_ID" : 49,
+  "DRUG_NAME" : "Ессенциале"
 } ]

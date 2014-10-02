@@ -144,7 +144,6 @@
 						</a>
 						</small>
 					</span>
-			<div class="row-fluid" title="{{taskInDay}}">
 				{{prescribeHistory.prescribes.tasks[taskInDayIndex].DRUG_NAME}}
 				<div data-ng-show="taskInDay.dialogTab=='drug'">
 					<form class="navbar-form navbar-left" role="search">
@@ -154,32 +153,31 @@
 								<input type="text" class="form-control" data-ng-model="seekDrug" auto-focus="" placeholder="Медикамент пошук / запис">
 							</div>
 						</div>
-						<button  data-ng-click="saveNewDrug(seekDrug)" class="btn btn-default">
+						<button  data-ng-click="saveNewDrug(seekDrug, taskInDay, prescribeHistory)" class="btn btn-default">
 							<span class="glyphicon glyphicon-floppy-disk"></span>
 						</button>
 						<div>
 						<div data-ng-repeat="drug in drug1sList | filter: seekDrug | limitTo : 12">
 							<a ng-click="drugToTask2(drug, taskInDay, prescribeHistory)">
 							{{drug.DRUG_NAME}}
-							{{$index}}
 							</a>
 						</div>
 						</div>
 					</form>
 				</div>
-<div data-ng-show="taskInDay.dialogTab=='dose'">
-		<div >
-			<span data-ng-repeat="dose in drugDocument.doses" data-ng-click="addDoseToPrescribeDrug(dose)">
-				<small data-ng-show="dose.DOSECONCENTRATON_NUMBER">
-					{{dose.DOSECONCENTRATON_NUMBER}}{{dose.DOSECONCENTRATON_UNIT}}
-				</small>
-				{{dose.DOSE_NUMBER}}
-				{{dose.DOSE_UNIT}}
-				{{dose.DOSE_ROUTE_OF_ADMINISTRATION}}
-				|
-			</span>
-		</div>
-			<table>
+		<div data-ng-show="taskInDay.dialogTab=='dose'">
+			<div >
+				<span data-ng-repeat="dose in drugDocument.doses" data-ng-click="addDoseToPrescribeDrug(dose)">
+					<small data-ng-show="dose.DOSECONCENTRATON_NUMBER">
+						{{dose.DOSECONCENTRATON_NUMBER}}{{dose.DOSECONCENTRATON_UNIT}}
+					</small>
+					{{dose.DOSE_NUMBER}}
+					{{dose.DOSE_UNIT}}
+					{{dose.DOSE_ROUTE_OF_ADMINISTRATION}}
+					|
+				</span>
+			</div>
+			<table style="width: 600px;">
 				<tr>
 					<th title="Концентрація">--</th>
 					<th title="Одиниці виміру концентрації">
@@ -214,11 +212,8 @@
 					<td> <a data-ng-click="addNewDrugDocumentDose()"> <span class="glyphicon glyphicon-plus"></span> </a> </td>
 				</tr>
 			</table>
-	
-</div>
+		</div>
 		<div data-ng-show="taskInDay.dialogTab=='times'">
-			<div class="row">
-				<div class="col-xs-8">
 				..
 				<table>
 					<tr>
@@ -241,11 +236,7 @@
 					</tr>
 				</table>
 				..
-				</div>
-			</div>
 		</div>
-			<hr/>
-			</div>
 				<span class="close navbar-right">
 					<small>
 					Додаток:

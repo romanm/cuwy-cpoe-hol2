@@ -29,9 +29,11 @@ cuwyApp.controller('patientLp24hCtrl', [ '$scope', '$http', function ($scope, $h
 	}).success(function(data, status, headers, config) {
 		$scope.patient = data;
 		if(null == $scope.patient.prescribesHistory){
-			$scope.patient.prescribesHistory = [];
 			$scope.newPrescribes();
 		}
+		$($scope.patient.prescribesHistory).each(function () {
+			this.tasksInDay = getTasksInDay();
+		} );
 		console.log($scope.patient);
 	}).error(function(data, status, headers, config) {
 	});
@@ -107,13 +109,15 @@ readDrugDocument = function(drug){
 	});
 }
 
-$scope.saveNewDrug = function(seekDrug){
+$scope.saveNewDrug = function(seekDrug, taskInDay, prescribeHistory){
 	$http({
 		method : 'POST',
 		data : {"DRUG_NAME":seekDrug},
 		url : '/saveNewDrug'
 	}).success(function(data, status, headers, config){
 		$scope.drug1sList = data;
+		var newDrug = $scope.drug1sList[$scope.drug1sList.length-1];
+		$scope.drugToTask2(newDrug, taskInDay, prescribeHistory)
 	}).error(function(data, status, headers, config) {
 		$scope.error = data;
 	});
